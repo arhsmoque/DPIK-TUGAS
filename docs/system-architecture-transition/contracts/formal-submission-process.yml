@@ -1,0 +1,46 @@
+process: FormalSubmissionFulfilmentProcess
+version: 1
+approval_status: proposed
+start_event: submission.approved-for-dispatch.v1
+completion_event: claim.ready-for-qs-review.v1
+conditions:
+  - WaitingForDispatchCreation
+  - WaitingForDispatchAssignment
+  - WaitingForCollection
+  - WaitingForDelivery
+  - WaitingForEvidenceSubmission
+  - WaitingForEvidenceVerification
+  - CorrectionDecisionRequired
+  - WaitingForReplacementEvidence
+  - WaitingForReplacementDispatch
+  - WaitingForClaimBinding
+  - WaitingForClaimEvaluation
+  - CompletedReadyForQSReview
+  - Cancelled
+execution_health:
+  - Healthy
+  - Retrying
+  - TechnicalBlocked
+  - Corrupted
+automatic_commands:
+  - CreateReceiptEvidenceAttempt
+  - EvaluateClaimRequirement
+  - RecalculateClaimReadiness
+  - InvalidateClaimEvidence
+human_required_commands:
+  - CreateDispatchAttempt
+  - AssignDispatch
+  - CreateReplacementDispatchAttempt
+  - CreateReplacementReceiptEvidenceAttempt
+  - VerifyReceiptEvidence
+  - WaiveClaimRequirement
+  - VerifyClaimPackage
+invariants:
+  - one_active_generation_per_submission_and_claim_scope
+  - consume_each_source_event_once_per_generation
+  - stable_command_identity_per_reaction
+  - current_attempt_references_match_submission_and_project
+  - replacement_never_overwrites_prior_attempt
+  - completion_reopens_only_after_authoritative_invalidation
+  - execution_health_never_rewrites_business_truth
+  - technical_retry_never_selects_business_correction
