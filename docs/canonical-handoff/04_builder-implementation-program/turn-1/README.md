@@ -38,3 +38,14 @@ merge the comprehensive planning PR
 → cut repository-foundation branch from updated main
 → begin WP-000 only
 ```
+
+## Full detail files (now included in-repo)
+
+```text
+01_REPOSITORY_CONVERGENCE_CHARTER.md
+02_WORK_PACKAGE_SEQUENCE.md   — WP-000 through WP-130
+03_PR_AND_BRANCH_STRATEGY.md
+04_CONTRACT_TO_CODE_TRACEABILITY.md
+05_PROVISIONAL_FIXTURE_POLICY.md
+06_TURN_1_EXIT_GATE.md
+```
