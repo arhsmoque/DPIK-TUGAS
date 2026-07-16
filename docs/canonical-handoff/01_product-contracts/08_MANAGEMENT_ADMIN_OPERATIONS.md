@@ -10,6 +10,12 @@ Sees material interventions and records explicit decisions.
 
 Manages identity, membership, roles and governed configuration.
 
+Staff roster entry is bulk, not one-by-one: an Admin uploads a CSV/TXT list of known staff emails, previewed dry-run style (new / already-member / malformed) before committing. This replaces the per-person *approval* step, not the *authentication* step — every listed person still authenticates for real (Supabase Auth) on first login. Import is additive-only; a shorter re-upload never revokes anyone, since removing access must always be a deliberate, separate, audited action rather than an implicit side effect of an incomplete spreadsheet. The bulk-import event is a valid `basis` on the record `04_ROLE_AND_AUTHORIZATION_MATRIX.md` requires for any default bundle granted alongside it.
+
+### Development / Feedback
+
+Owns the in-app problem-reporting loop: any staff member can report an issue from within the app; developers see it triaged in one place alongside system-caught exceptions, distinguished by `source: system | user_report`, with acknowledge, filter-by-acknowledged, and copy-logs-for-debugging actions. This is distinct from Operations below — it is the *feedback and bug-fixing* loop for the product itself, not technical recovery of a running process. The legacy app already built and used this pattern (`app_errors` table, `ReportIssueDialog`, Admin → Errors tab); it ports forward under this repository's RLS and module boundaries rather than legacy's anonymous-writable policy.
+
 ### Operations
 
 Observes health and performs safe technical recovery.
