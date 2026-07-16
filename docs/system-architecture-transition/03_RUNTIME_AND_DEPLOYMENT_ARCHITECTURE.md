@@ -158,6 +158,12 @@ Pilot and production use dedicated Supabase projects, storage namespaces, Worker
 13. accept release
 ```
 
+## Domain continuity at cutover
+
+Legacy TUGAS is live today on Cloudflare Pages at `https://dpiktugas.pages.dev/` (production alias) / `https://main.dpiktugas.pages.dev/` (branch deployment). Decision: staff keep the link they already have — the canonical build takes over `dpiktugas.pages.dev` at cutover, legacy moves to a different project name. See `docs/decisions/0002-domain-continuity-at-cutover.md` for the concrete mechanism and status.
+
+This is a cutover-time action (step 7/8 of Coordinated deployment above, once pilot acceptance is reached), not a WP-000-era action — nothing is deployed yet.
+
 ## Failure containment
 
 ```text
