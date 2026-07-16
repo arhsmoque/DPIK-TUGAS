@@ -23,7 +23,14 @@ export default [
         sourceType: "module",
         ecmaFeatures: { jsx: true }
       },
-      globals: { document: "readonly", window: "readonly", JSX: "readonly" }
+      globals: {
+        document: "readonly",
+        window: "readonly",
+        JSX: "readonly",
+        crypto: "readonly",
+        TextEncoder: "readonly",
+        TextDecoder: "readonly"
+      }
     },
     plugins: {
       "@typescript-eslint": tseslint,

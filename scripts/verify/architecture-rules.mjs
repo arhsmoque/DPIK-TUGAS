@@ -66,3 +66,27 @@ export function checkArchitecture(modulesRoot) {
 
   return { violations, filesChecked: files.length };
 }
+
+// Foundation is the shared kernel every module's domain/application layer
+// imports -- if it depended on React or Supabase, that dependency would leak
+// into every module transitively, defeating the point of gating "domain".
+// So the whole tree is checked, not just a "domain" sub-layer.
+export function checkFoundation(foundationRoot) {
+  const violations = [];
+  const files = listFilesRecursive(foundationRoot);
+
+  for (const file of files) {
+    const source = readFileSync(file, "utf8");
+    const rel = relative(foundationRoot, file);
+
+    for (const spec of importSpecifiers(source)) {
+      if (FRAMEWORK_OR_PROVIDER_PATTERNS.some((p) => p.test(spec))) {
+        violations.push(
+          `${rel}: foundation code imports "${spec}" -- the shared kernel must not depend on React, Supabase, or any provider SDK.`
+        );
+      }
+    }
+  }
+
+  return { violations, filesChecked: files.length };
+}
