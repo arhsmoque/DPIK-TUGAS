@@ -51,7 +51,10 @@ Members
 /receipt-evidence/:receiptEvidenceAttemptId
 /claims
 /management/attention
-/administration/*
+/administration/staff              — bulk CSV/TXT roster import + individual add/remove
+/administration/capabilities       — grant/revoke capability bundles, with basis
+/administration/configuration
+/administration/dev-console        — platform status (Supabase, Cloudflare, keep-alive job) + feedback triage
 /delivery/access/:opaqueToken
 ```
 

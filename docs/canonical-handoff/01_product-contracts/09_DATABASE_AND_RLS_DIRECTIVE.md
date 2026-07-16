@@ -50,6 +50,9 @@ management_attention_projection
 security_events
 operational_events
 configuration_versions
+
+staff_roster_imports        — one row per bulk CSV/TXT import, source file reference, imported_by
+application_feedback_reports — source: system | user_report; acknowledged_by, acknowledged_at
 ```
 
 ## Common columns
