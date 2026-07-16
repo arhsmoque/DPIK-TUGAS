@@ -2,7 +2,7 @@ import { describe, expect, it, afterEach } from "vitest";
 import { mkdtempSync, rmSync, mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { checkArchitecture } from "../../scripts/verify/architecture-rules.mjs";
+import { checkArchitecture, checkFoundation } from "../../scripts/verify/architecture-rules.mjs";
 
 let workDir: string | undefined;
 
@@ -78,5 +78,39 @@ describe("architecture gate", () => {
 
     expect(result.violations).toHaveLength(1);
     expect(result.violations[0]).toContain("@modules/identity-access/domain/internal-helper");
+  });
+});
+
+describe("foundation gate", () => {
+  it("passes when foundation code stays framework-free", () => {
+    workDir = mkdtempSync(join(tmpdir(), "arch-test-"));
+    const foundationRoot = join(workDir, "src", "foundation");
+
+    fixture(
+      foundationRoot,
+      "result/result.ts",
+      `export const ok = (v: unknown) => ({ ok: true, v });`
+    );
+
+    const result = checkFoundation(foundationRoot);
+
+    expect(result.violations).toEqual([]);
+    expect(result.filesChecked).toBe(1);
+  });
+
+  it("flags foundation code importing a framework or provider SDK, anywhere in the tree", () => {
+    workDir = mkdtempSync(join(tmpdir(), "arch-test-"));
+    const foundationRoot = join(workDir, "src", "foundation");
+
+    fixture(
+      foundationRoot,
+      "ports/some-adapter.ts",
+      `import { createClient } from "@supabase/supabase-js";\nexport const client = createClient();`
+    );
+
+    const result = checkFoundation(foundationRoot);
+
+    expect(result.violations).toHaveLength(1);
+    expect(result.violations[0]).toContain("@supabase/supabase-js");
   });
 });
