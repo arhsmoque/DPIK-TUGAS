@@ -1,0 +1,37 @@
+version: 1
+status: reconciled_names_payload_schemas_pending_generation
+process_facing:
+  submission:
+    - submission.approved-for-dispatch.v1
+    - submission.cancelled.v1
+    - submission.superseded.v1
+  dispatch:
+    - dispatch.attempt-created.v1
+    - dispatch.assigned.v1
+    - dispatch.package-collected.v1
+    - dispatch.package-delivered.v1
+    - dispatch.delivery-failed.v1
+    - dispatch.replacement-created.v1
+  receipt_evidence:
+    - receipt-evidence.attempt-created.v1
+    - receipt-evidence.item-uploaded.v1
+    - receipt-evidence.submitted-for-verification.v1
+    - receipt-evidence.verified.v1
+    - receipt-evidence.rejected.v1
+    - receipt-evidence.replacement-created.v1
+    - receipt-evidence.verification-invalidated.v1
+  claim:
+    - claim.requirement-satisfied.v1
+    - claim.requirement-gap-recorded.v1
+    - claim.requirement-invalidated.v1
+    - claim.requirement-waived.v1
+    - claim.ready-for-qs-review.v1
+    - claim.package-evidence-incomplete.v1
+    - claim.qs-verified.v1
+  project_context:
+    - project.closed.v1
+rules:
+  - one_owning_module
+  - payload_schema_required_before_implementation
+  - historical_event_never_rewritten
+  - unsupported_future_version_rejected

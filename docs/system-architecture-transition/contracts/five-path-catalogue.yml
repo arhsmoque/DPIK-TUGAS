@@ -1,0 +1,41 @@
+version: 1
+status: design_proofed_execution_pending
+paths:
+  - id: PATH-01-HAPPY
+    title: Happy Path
+    final:
+      work_thread: Closed
+      deliverable_revision: Approved
+      submission: ReadyForDispatch
+      dispatch: Delivered
+      receipt_evidence: Verified
+      claim: ReadyForQSReview
+      process: CompletedReadyForQSReview
+  - id: PATH-02-INTERNAL-REVISION
+    title: Internal Revision
+    final:
+      revision_r1: RevisionRequired_preserved
+      revision_r2: Approved
+      manifest: references_r2_only
+  - id: PATH-03-DELIVERY-REJECTION
+    title: Delivery Rejection and Re-dispatch
+    final:
+      dispatch_d1: Delivered_preserved
+      evidence_e1: Rejected_preserved
+      dispatch_d2: Delivered
+      evidence_e2: Verified
+      claim: ReadyForQSReview
+  - id: PATH-04-EXPIRY-OVERDUE
+    title: Expiry and Overdue
+    final:
+      work_lifecycle_during_overdue: InProgress
+      overdue_condition: true
+      access_a1: Expired_preserved
+      dispatch_during_expiry: Assigned
+      access_a2: new_aggregate
+  - id: PATH-05-CLAIM-GAP
+    title: Claim Gap
+    final:
+      before_correction: EvidenceIncomplete
+      gap_visible: true
+      after_replacement_evidence: ReadyForQSReview

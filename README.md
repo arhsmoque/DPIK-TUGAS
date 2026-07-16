@@ -2,9 +2,9 @@
 
 Canonical repository for DPIK TUGAS.
 
-## Current concurrent review
+## System architecture and transition programme
 
-The system architecture and transition checkpoint completed through Turn 6 is under:
+The seven-turn system architecture and transition design is under:
 
 ```text
 docs/system-architecture-transition/
@@ -13,13 +13,17 @@ docs/system-architecture-transition/
 Current status:
 
 ```text
-SYSTEM CONTEXT: ESTABLISHED
+SYSTEM CONTEXT AND TRUST: ESTABLISHED
 RUNTIME AND DEPLOYMENT: ESTABLISHED
-MODULE AND DATA OWNERSHIP: ESTABLISHED
+MODULE, DATA AND EVENT OWNERSHIP: ESTABLISHED
 LOCAL TRANSITION MODEL: COMPLETE AS PROPOSED BASELINE
 CROSS-AGGREGATE PROCESS MANAGER: COMPLETE AS PROPOSED BASELINE
+FIVE-PATH DESIGN PROOF: COMPLETE
+NON-PRODUCTION IMPLEMENTATION: CONDITIONALLY AUTHORIZED
 OPERATIONAL APPROVAL: PENDING
-FIVE-PATH APPROVAL: TURN 7 PENDING
+EXECUTED FIVE-PATH PROOF: PENDING
+PILOT: BLOCKED
+PRODUCTION: BLOCKED
 ```
 
-This pull-request checkpoint is for concurrent domain, architecture, security, operations and builder review. It must not be interpreted as production authorization.
+Design proof is not runtime proof or production authorization. The builder must execute the five canonical paths and complete the operational approval records before pilot or release.
