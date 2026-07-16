@@ -1,0 +1,220 @@
+version: 1
+status: proposed_operational_approval_pending
+
+aggregates:
+  WorkThread:
+    lifecycle_states:
+      - Unassigned
+      - AwaitingAcknowledgement
+      - Assigned
+      - InProgress
+      - AwaitingAcceptance
+      - Closed
+      - Cancelled
+    orthogonal_conditions:
+      - has_open_blocker
+      - overdue
+    transition_ids:
+      - WT-01
+      - WT-02
+      - WT-03
+      - WT-04
+      - WT-05
+      - WT-06
+      - WT-07
+      - WT-08
+      - WT-09
+      - WT-10
+      - WT-11
+      - WT-12
+      - WT-13
+      - WT-14
+
+  Deliverable:
+    states:
+      - Draft
+      - InReview
+      - RevisionRequired
+      - Approved
+      - Rejected
+      - Withdrawn
+    rules:
+      - review_targets_exact_immutable_revision
+      - resubmitted_is_not_a_state
+      - approved_revision_remains_historical
+    transition_ids:
+      - DL-01
+      - DL-02
+      - DL-03
+      - DL-04
+      - DL-05
+      - DL-06
+      - DL-07
+      - DL-08
+      - DL-09
+
+  Submission:
+    states:
+      - Draft
+      - Prepared
+      - ReadyForDispatch
+      - Cancelled
+      - Superseded
+    excluded_state_concepts:
+      - InDelivery
+      - ReceiptPending
+      - Acknowledged
+      - ClaimLinked
+    transition_ids:
+      - SB-01
+      - SB-02
+      - SB-03
+      - SB-04
+      - SB-05
+      - SB-06
+      - SB-07
+      - SB-08
+      - SB-09
+
+  DispatchAttempt:
+    states:
+      - Prepared
+      - Assigned
+      - InTransit
+      - Delivered
+      - Failed
+      - Cancelled
+    rules:
+      - one_attempt_one_custody_journey
+      - delivered_never_moves_backward
+      - replacement_has_new_identity
+    transition_ids:
+      - DP-01
+      - DP-02
+      - DP-03
+      - DP-04
+      - DP-05
+      - DP-06
+      - DP-07
+
+  DeliveryAccess:
+    states:
+      - Active
+      - Completed
+      - Expired
+      - Revoked
+    rules:
+      - one_dispatch_scope
+      - raw_token_not_stored
+      - rotation_invalidates_prior_generation
+    transition_ids:
+      - DA-01
+      - DA-02
+      - DA-03
+      - DA-04
+      - DA-05
+      - DA-06
+
+  ReceiptEvidenceAttempt:
+    states:
+      - Collecting
+      - PendingVerification
+      - Verified
+      - Rejected
+      - Withdrawn
+      - Invalidated
+    rules:
+      - upload_is_not_verification
+      - verifier_uses_exact_submitted_item_set
+      - replacement_has_new_identity
+      - invalidation_preserves_original_decision
+    transition_ids:
+      - RE-01
+      - RE-02
+      - RE-03
+      - RE-04
+      - RE-05
+      - RE-06
+      - RE-07
+      - RE-08
+      - RE-09
+
+  ClaimPackage:
+    lifecycle_states:
+      - Open
+      - Submitted
+      - Closed
+      - Cancelled
+    readiness_states:
+      - EvidenceIncomplete
+      - ReadyForQSReview
+      - QSVerified
+      - Invalidated
+    requirement_states:
+      - Unsatisfied
+      - Satisfied
+      - Waived
+      - Invalidated
+    rules:
+      - readiness_and_lifecycle_are_separate
+      - ready_for_qs_review_is_not_qs_verified
+      - material_change_requires_invalidation_and_reopen
+    transition_ids:
+      - CL-01
+      - CL-02
+      - CL-03
+      - CL-04
+      - CL-05
+      - CL-06
+      - CL-07
+      - CL-08
+      - CL-09
+      - CL-10
+      - CL-11
+      - CL-12
+      - CL-13
+      - CL-14
+
+  ConfigurationProfile:
+    version_states:
+      - Draft
+      - Validated
+      - Approved
+      - Active
+      - Superseded
+      - Retired
+    rules:
+      - one_active_version_per_profile
+      - approved_and_active_content_immutable
+      - activation_supersedes_prior_active_atomically
+      - historical_bindings_do_not_silently_change
+    transition_ids:
+      - CF-01
+      - CF-02
+      - CF-03
+      - CF-04
+      - CF-05
+      - CF-06
+      - CF-07
+
+approval_required:
+  - professional_authority_matrix
+  - reviewer_competency_rules
+  - submission_dispatch_approval
+  - receipt_evidence_verifier_authority
+  - uploader_verifier_separation_exceptions
+  - claim_waiver_authority
+  - qs_verification_authority
+  - configuration_approval_and_activation
+  - client_specific_evidence_profiles
+  - timer_durations
+
+pending_turns:
+  turn_6:
+    - formal_submission_process_manager
+    - technical_retry_and_business_correction
+    - failure_propagation
+  turn_7:
+    - five_canonical_paths
+    - operational_approval
+    - final_bundle
