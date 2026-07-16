@@ -23,7 +23,11 @@ Identity
 = accepted command
 ```
 
-`professional authority` is established by an internal grant (see Capability grant record below), not by verifying an external credential. Where a specific client or regulator contractually requires a credential-holding signatory on a specific document, that is a property of the Claim Requirement or Submission for that client, evaluated at the document level — it is not a constraint on who may hold a capability bundle system-wide.
+`professional authority` is established by an internal grant (see Capability grant record below), not by verifying an external credential — with exactly one exception, the Authorized Signatory gate below, which genuinely is a regulated external credential. Beyond that one gate, where a specific client or regulator contractually requires a credential-holding reviewer on a specific document, that is a property of the Claim Requirement or Submission for that client, evaluated at the document level — it is not a constraint on who may hold a capability bundle system-wide.
+
+## Delegation is unrestricted; Management is visibility, not a bottleneck
+
+Operationally, any identity holding Work Owner may delegate what needs delegating — assignment and re-assignment are not gated to a single role or to Management. The Managing Director's day-to-day interface to the system is the Management Attention view (read-only) plus the one non-delegable gate below — not an approval queue for ordinary work. Do not route routine assignment, review, or dispatch decisions through Management for sign-off; that would silently rebuild the "boss as black box, staff chasing sign-off" problem this product exists to remove.
 
 ## Capability bundles, not job titles
 
@@ -31,7 +35,7 @@ A bundle is a named grouping of the stable permissions below. Any identity may h
 
 | Bundle | Main authority | Typical (not exclusive) holder |
 |---|---|---|
-| Management | Management attention view and exceptional override | Managing Director, Organisation Director |
+| Management | Management Attention view (primary interface — visibility, not routine approval) and exceptional override | Managing Director, Organisation Director |
 | Work Owner | Work assignment, due dates, accountability, outcome acceptance | HOD, Project Manager |
 | Preparer / Assignee | Progress, blockers, Deliverable and BQ preparation | Site Engineer, HQ Engineer, drafter, Inspector of Works |
 | Reviewer | Internal review, revision request, technical approval or rejection | Whoever the org has actually granted this to — title not required |
@@ -45,15 +49,22 @@ Liaison Officer work (fronting permit matters with an authority) is not a new mo
 
 ## The one bundle that is not like the others: Authorized Signatory
 
-Everyone may write the report, prepare the BQ, and hold Reviewer authority. Exactly one capability does not follow the flexible-grant pattern above: **final authorization to release a formal Submission outside the company carries one signatory, full stop — the Managing Director.** This is not a bundle granted the way the others are; it is a single versioned organisational fact, held in the Configuration module:
+Everyone may write the report, prepare the BQ, and hold Reviewer authority. Exactly one capability does not follow the flexible-grant pattern above: **every Submission requires the Authorized Signatory's stamp before dispatch — currently the Managing Director, who holds PEPC (Professional Engineer with Practising Certificate) status under the Board of Engineers Malaysia / Registration of Engineers Act 1967.**
+
+This is the one place in this whole model where the earlier rule reverses: authority here is *not* an internally recorded reason, it is a verified external credential, because the law — not DPIK's internal preference — is what restricts who may stamp a formal engineering submission. Every other bundle in this matrix is granted on internal judgment (`basis` is free text); this one exists because the holder is legally entitled to exercise it, independent of whatever DPIK decides.
+
+Consequently this is not a bundle granted the way the others are; it is a single versioned organisational fact, held in the Configuration module and tracked against the credential, not just the person:
 
 ```text
 authorized_signatory: <identity>
+credential: PEPC <registration number>
 effective_from: <date>
-superseded_by: <identity or null>
+superseded_by: <identity or null>   — e.g. on credential lapse, renewal gap, or another PEPC holder joining
 ```
 
 Internal technical approval (`deliverable.approve`, held by any granted Reviewer) and formal external authorization (`submission.approve_dispatch`, gated to the current Authorized Signatory) are already separate truths in this contract's independent-truths model (`01_PRODUCT_CONTRACT.md` §2: Document approval ≠ Formal package identity) — this section just names the authority behind the second one explicitly, and requires it be recorded with succession history rather than implied.
+
+If DPIK ever has more than one PEPC-registered engineer, `authorized_signatory` can hold more than one active identity — the constraint is "must hold valid PEPC," not "must be exactly the Managing Director." Today those happen to be the same person; the model should not hardcode that coincidence.
 
 ## Capability grant record
 
@@ -80,7 +91,7 @@ Separation of duty is enforced by **record relationship, not role exclusivity**.
 2. An identity cannot verify Receipt Evidence it uploaded.
 3. Administration does not imply professional approval authority.
 4. Delivery-custodian access is a one-Dispatch capability, not project membership — this applies identically whether the custodian is an external courier or DPIK staff delivering informally on the way home; an internal custodian's identity may optionally be recorded on the Dispatch Attempt for the company's own reimbursement purposes, without granting that person any broader access.
-5. Only the current Authorized Signatory may execute `submission.approve_dispatch`; this is not delegable through the ordinary capability-grant mechanism.
+5. Only the current Authorized Signatory (valid PEPC holder) may execute `submission.approve_dispatch`; this is not delegable through the ordinary capability-grant mechanism, and Work Owner delegation authority does not reach this gate.
 6. Where a genuinely single person must both prepare and approve (no second qualified identity exists), the system permits the action rather than blocking work, but records it as `self_approved: true` / `self_verified: true`, visible on the record and on the Claim Readiness view — flagged, not silently allowed, and not treated as independent review.
 7. Management overrides use explicit named commands and reasons, and are themselves audited.
 
