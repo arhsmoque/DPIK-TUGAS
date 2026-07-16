@@ -31,8 +31,11 @@ Critical Blocker
 Review Delay
 Responsibility Gap
 Decision Required
+Delegation Negotiation In Progress
 System Degradation
 ```
+
+`Delegation Negotiation In Progress` covers both a pending Recall Request and a pending Renegotiation Request on a Work Thread (`03_DOMAIN_AND_STATE_MODEL.md`) — this is the visibility mechanism that makes an off-platform WhatsApp negotiation unnecessary: management sees that a negotiation is happening, who raised it, and why, without being a party to it.
 
 Every item shows:
 

@@ -105,6 +105,16 @@ work.update
 work.change_due_date
 work.accept
 work.reopen
+work.claim                       — self-assign from open pool, any eligible project member
+
+work.request_recall              — requires Work Owner reach broader than the assignment
+work.confirm_recall
+work.retract_recall
+work.request_renegotiation       — self-service: holding the assignment is sufficient
+work.adjust_terms
+work.cancel_delegation           — requires reason_code + reason_detail for "Other"
+work.release_to_open_pool
+work.escalate_for_reassignment
 
 deliverable.create
 deliverable.submit

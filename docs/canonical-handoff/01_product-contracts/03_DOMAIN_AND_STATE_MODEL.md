@@ -43,6 +43,38 @@ Closed
 Cancelled
 ```
 
+#### Work Thread — delegation negotiation (orthogonal, not lifecycle states)
+
+A generic delegation tool only supports silent, unilateral reassignment. That default pushes negotiation off-platform into WhatsApp, which is the exact failure mode this product exists to close. Two symmetric, reason-carrying conditions sit alongside `Blocked`/`Overdue`:
+
+```text
+RecallRequested        — an upstream Work Owner (broader reach than this assignment)
+                          proposes reassignment. Work continues; nothing changes yet.
+
+RenegotiationRequested — the current assignee requests revision (emergency, overload,
+                          needs extension/resource) or a straight reassignment.
+                          Self-service: holding the assignment is enough to raise this,
+                          no additional permission required.
+```
+
+Either condition opens a structured Decision-required discussion (reusing the existing comment classification, not a new discussion system) and resolves explicitly — it never silently mutates the assignment:
+
+```text
+RecallRequested
+  → ConfirmRecall  → AssignWork(new assignee); history of the request is kept regardless
+  → RetractRecall  → assignment unchanged; the request itself stays in history
+
+RenegotiationRequested
+  → TermsAdjusted             — due date or scope changed, same assignee, negotiation closes
+  → DelegationCancelled(reason_code, reason_detail: free text for "Other")
+      → AssignWork(new assignee)     — delegator picks directly
+      → ReleasedToOpenPool           — Work Thread returns to Unassigned; any eligible
+                                        project member may ClaimWork (self-assign)
+      → EscalatedForReassignment     — routed to the upstream Work Owner to resolve
+```
+
+Both conditions surface on Management Attention as "Negotiation in progress" for as long as they're open — upper management sees that a negotiation is happening even without being a party to it. A retracted recall or a resolved renegotiation is not deleted; it stays visible history, since "this assignment was questioned/renegotiated and how it resolved" is itself accountability signal, not noise to discard.
+
 ### Deliverable
 
 ```text
