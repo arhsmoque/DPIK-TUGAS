@@ -4,19 +4,19 @@
 
 Path: `01_product-contracts/`
 
-Contains the V1 Build Directive, Product Contract, Canonical Workflow, domain/state model, role and authorization matrix, information architecture, work/review surfaces, submission/delivery/Claim surfaces, management/admin/operations, database/RLS directive, module map, implementation sequence, acceptance scenarios, V2 register and operational review record.
+Covers the V1 Build Directive, Product Contract, Canonical Workflow, domain/state model, role and authorization matrix, information architecture, work/review surfaces, submission/delivery/Claim surfaces, management/admin/operations, database/RLS directive, module map, implementation sequence, acceptance scenarios, V2 register and operational review record.
 
 ## 2. Canonical Engineering Standard
 
 Path: `02_engineering-standard/`
 
-Contains the repository genesis directive, canonical engineering directive, builder-agent runbook, engineering `AGENTS.md`, source notes and bundle index.
+Covers the repository genesis directive, canonical engineering directive, domain-driven hexagonal architecture, strict TypeScript, observability, testing, mismatch analysis and builder-agent runbook.
 
 ## 3. System Architecture and Transition Pack
 
 Path: `03_system-architecture-transition/`
 
-Contains all seven turns, consolidated blueprints, status/authorization, approval index, machine contracts, Mermaid diagrams and Gherkin scenarios.
+The repository's full review set is under `docs/system-architecture-transition/` and covers:
 
 ```text
 Turn 1 — Baseline and authority audit
@@ -32,8 +32,24 @@ Turn 7 — Five-path proof and final authorization
 
 Path: `04_builder-implementation-program/turn-1/`
 
-Contains the repository convergence charter, work-package sequence, PR strategy, contract-to-code traceability, provisional fixture policy and Turn 1 exit gate.
+Covers repository convergence, work-package sequence, PR strategy, contract-to-code traceability, provisional fixtures and the first implementation gate.
 
-## 5. Consolidated volumes
+## 5. Consolidated reading copy
 
-The original source files are preserved in reviewable Markdown volumes under `volumes/`. Use `00_VOLUME_INDEX.md` to locate them.
+Read:
+
+```text
+01_ALL_PLANS_CONSOLIDATED.md
+```
+
+for one continuous explanation of every programme and decision.
+
+## 6. Original archive register
+
+Read:
+
+```text
+00_ARCHIVE_MANIFEST.md
+```
+
+for every original ZIP bundle, size and SHA-256 checksum.
