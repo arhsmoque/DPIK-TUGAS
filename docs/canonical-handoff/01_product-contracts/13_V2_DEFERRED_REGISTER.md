@@ -39,6 +39,13 @@ The following must not delay V1.
 - client portal
 - native mobile application
 
+## Regulatory and permit tracking
+
+- dedicated permit-tracking screens and permit-specific evidence rules
+- authority-relationship management beyond generic Submission recipient typing
+
+V1 keeps `Submission` recipient typing generic (client or authority) so this is a screen added later, not a data-model change — see `04_ROLE_AND_AUTHORIZATION_MATRIX.md`.
+
 ## Project and commercial systems
 
 - programme scheduling engine
