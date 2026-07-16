@@ -54,7 +54,7 @@ Members
 /administration/staff              — bulk CSV/TXT roster import + individual add/remove
 /administration/capabilities       — grant/revoke capability bundles, with basis
 /administration/configuration
-/administration/errors             — development/feedback console (report, triage, acknowledge)
+/administration/dev-console        — platform status (Supabase, Cloudflare, keep-alive job) + feedback triage
 /delivery/access/:opaqueToken
 ```
 

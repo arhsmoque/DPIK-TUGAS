@@ -14,7 +14,19 @@ Staff roster entry is bulk, not one-by-one: an Admin uploads a CSV/TXT list of k
 
 ### Development / Feedback
 
-Owns the in-app problem-reporting loop: any staff member can report an issue from within the app; developers see it triaged in one place alongside system-caught exceptions, distinguished by `source: system | user_report`, with acknowledge, filter-by-acknowledged, and copy-logs-for-debugging actions. This is distinct from Operations below — it is the *feedback and bug-fixing* loop for the product itself, not technical recovery of a running process. The legacy app already built and used this pattern (`app_errors` table, `ReportIssueDialog`, Admin → Errors tab); it ports forward under this repository's RLS and module boundaries rather than legacy's anonymous-writable policy.
+Basic in V1, one page, two sections — no uptime graphs, no live streaming, just current status plus a timestamp and a link out to the real dashboard for anything deeper:
+
+**Platform status** (polled, cached, not real-time):
+
+```text
+Supabase        — reachable? (trivial health-check query), last checked, Healthy/Degraded/Unknown
+Cloudflare       — last deployment id, deployed_at, deployed_by, success/failed
+Keep-alive job   — last successful ping, next scheduled run, consecutive-failure count
+```
+
+The keep-alive job exists because a Supabase free-tier project auto-pauses after inactivity; it is a scheduled task on the same Cloudflare Cron wake-up already used for the outbox/timer scheduler (`03_system-architecture-transition` Turn 3), doing nothing but a trivial query on an interval well under the pause threshold. Its failure is exactly the kind of thing that must not go silently unnoticed, so its last-run outcome is a first-class row here, not a fact only visible in Cloudflare's own logs. None of this needs new tables — Supabase status, deployment records and keep-alive pings are all written as rows to the already-listed `operational_events` table, tagged by kind, and this page just reads the latest of each.
+
+**Feedback**: the in-app problem-reporting loop — any staff member can report an issue from within the app; developers see it triaged here alongside system-caught exceptions, distinguished by `source: system | user_report`, with acknowledge, filter-by-acknowledged, and copy-logs-for-debugging actions. This is distinct from Operations below — it is the *feedback and bug-fixing* loop for the product itself, not technical recovery of a running process. The legacy app already built and used this pattern (`app_errors` table, `ReportIssueDialog`, Admin → Errors tab); it ports forward under this repository's RLS and module boundaries rather than legacy's anonymous-writable policy.
 
 ### Operations
 
