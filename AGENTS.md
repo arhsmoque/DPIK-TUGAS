@@ -70,6 +70,8 @@ docs/evidence/2026-07-18-startup.md
 docs/evidence/2026-07-18-cloud-agent-context.md
 ```
 
+For GitHub, Supabase, CI, migration, RLS-fixture, or shared-project work, load `.agents/skills/dpik-tugas-cloud-ops/SKILL.md` and run its preflight before any remote mutation.
+
 ### Repository and environment
 
 - GitHub repository: `arhsmoque/DPIK-TUGAS` (public), default branch `main`.
@@ -88,11 +90,12 @@ SUPABASE_ACCESS_TOKEN
 SUPABASE_PROJECT_REF
 SUPABASE_URL
 SUPABASE_ANON_KEY
+SUPABASE_SERVICE_ROLE_KEY
 VITE_SUPABASE_URL
 VITE_SUPABASE_ANON_KEY
 ```
 
-The existing `.github/workflows/ci.yml` does not consume these secrets. Their presence is not permission to deploy, mutate production, or expose secrets to workflows triggered by forks. A cloud workflow must explicitly map only the minimum secret required for a trusted event. No database password or service-role key is registered because the current CLI path does not require either.
+The existing `.github/workflows/ci.yml` does not consume these secrets. Their presence is not permission to deploy, mutate production, or expose secrets to workflows triggered by forks. A cloud workflow must explicitly map only the minimum secret required for a trusted event. `SUPABASE_SERVICE_ROLE_KEY` is restricted to trusted fixture setup/cleanup and must never enter browser code, `VITE_*`, fork-triggered jobs, logs, or application assertions. No database password is registered because the current CLI path does not require one.
 
 The management token pasted into the operator conversation is rotation debt. After rotation, update both `SUPABASE_ACCESS_TOKEN` and Supabase CLI native credential storage. Do not preserve the exposed value anywhere else.
 
