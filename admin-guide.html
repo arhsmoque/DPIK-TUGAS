@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DPIK TUGAS — Administrator Guide</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #17211b;
+        --muted: #5d6b62;
+        --paper: #f4f7f3;
+        --card: #ffffff;
+        --green: #17633a;
+        --line: #d8e1da;
+        --red: #9e2f2f;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font:
+          16px/1.6 system-ui,
+          sans-serif;
+        color: var(--ink);
+        background: var(--paper);
+      }
+      header {
+        padding: 3.5rem max(1.25rem, calc((100% - 920px) / 2));
+        color: white;
+        background: linear-gradient(135deg, #122d20, #245a3b);
+      }
+      header p {
+        max-width: 680px;
+        color: #deeee4;
+      }
+      main {
+        max-width: 920px;
+        margin: -1.4rem auto 4rem;
+        padding: 0 1.25rem;
+      }
+      section {
+        margin: 1rem 0;
+        padding: 1.4rem 1.6rem;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: var(--card);
+        box-shadow: 0 8px 28px #173d2510;
+      }
+      h1,
+      h2,
+      h3 {
+        line-height: 1.2;
+      }
+      h2 {
+        color: var(--green);
+      }
+      a {
+        color: var(--green);
+        font-weight: 650;
+      }
+      .warning {
+        border-left: 4px solid var(--red);
+        padding-left: 1rem;
+        color: var(--muted);
+      }
+      code {
+        padding: 0.15rem 0.35rem;
+        border-radius: 5px;
+        background: #eaf0eb;
+      }
+      nav {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        padding: 0.65rem;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+      @media (max-width: 600px) {
+        header {
+          padding-top: 2.3rem;
+        }
+        section {
+          padding: 1.1rem;
+        }
+        table {
+          font-size: 0.9rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div>DPI Konsult Sdn Bhd</div>
+      <h1>DPIK TUGAS Administrator Guide</h1>
+      <p>
+        Operational boundaries, account support, access handling, health checks, and escalation for
+        the current non-production startup.
+      </p>
+    </header>
+    <main>
+      <section>
+        <nav>
+          <a href="http://127.0.0.1:4173">Open TUGAS</a><a href="user-guide.html">User guide</a
+          ><a href="https://github.com/arhsmoque/DPIK-TUGAS#readme">Project documentation</a>
+        </nav>
+      </section>
+      <section>
+        <h2>Current authority</h2>
+        <table>
+          <tr>
+            <th>Allowed</th>
+            <th>Not yet allowed</th>
+          </tr>
+          <tr>
+            <td>
+              Non-production sign-in, Project context, create, assign, acknowledge, My Work, and
+              diagnostic checks
+            </td>
+            <td>
+              Pilot, production, destructive legacy changes, final role catalogue, or workflow
+              expansion beyond WP-130
+            </td>
+          </tr>
+        </table>
+        <p class="warning">
+          Administration capability does not grant professional approval authority. Never share
+          sessions, magic links, management tokens, or service-role credentials.
+        </p>
+      </section>
+      <section>
+        <h2>Known startup identities</h2>
+        <ul>
+          <li><strong>Work Owner / temporary Administration:</strong> rahman@dpik.com.my</li>
+          <li><strong>Assignee:</strong> smoque@gmail.com</li>
+          <li><strong>Project:</strong> DPIK Tugas</li>
+          <li><strong>Organisation:</strong> DPI Konsult Sdn Bhd</li>
+        </ul>
+        <p>
+          These are non-production fixtures. Temporary <code>startup_*</code> bundles are not the
+          final canonical role catalogue.
+        </p>
+      </section>
+      <section>
+        <h2>Account and access support</h2>
+        <ol>
+          <li>Confirm the person and approved email through DPIK's normal channel.</li>
+          <li>
+            Check whether the identity and active Project membership exist; do not bypass RLS with
+            browser-side service credentials.
+          </li>
+          <li>
+            Grant only the required capability bundle with a recorded reason and granting identity.
+          </li>
+          <li>
+            For revocation, deactivate the membership/grant and verify that a fresh authenticated
+            session is denied.
+          </li>
+          <li>Record the change and its verification evidence.</li>
+        </ol>
+        <p class="warning">
+          The application does not yet provide a complete self-service administration screen.
+          Database access changes must follow a reviewed migration or approved administrative
+          procedure—never improvised SQL against the shared project.
+        </p>
+      </section>
+      <section>
+        <h2>Daily health check</h2>
+        <ol>
+          <li>Run <code>Start-TUGAS.cmd</code> and confirm the local health response.</li>
+          <li>Sign in as an approved fixture user and confirm Project context and My Work load.</li>
+          <li>Check that anonymous access remains denied.</li>
+          <li>
+            Escalate migration mismatch, repeated stale-version errors, missing Project context, or
+            outbox/projection lag.
+          </li>
+        </ol>
+      </section>
+      <section>
+        <h2>Credential incidents</h2>
+        <p>
+          If a token, key, magic link, or signing key is exposed: stop using it, revoke/rotate it at
+          the provider, update the approved secret store, prove the previous value no longer works,
+          and record credential-free evidence. Never paste the replacement into chat, issues, logs,
+          or documentation.
+        </p>
+      </section>
+    </main>
+  </body>
+</html>
