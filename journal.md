@@ -36,3 +36,11 @@ This is an append-only, operator-facing continuity record. It explains why work 
 ## Resume point
 
 Resume at WP-130 reference-slice qualification. First rotate the exposed management token, then prove the authenticated two-user browser and negative-security/recovery matrix. Do not expand business workflow or declare pilot readiness before those gates and operational approval pass.
+
+## 2026-07-18 — Shared cloud-operations contract
+
+- A cloud agent reported the startup migrations and TypeScript modules missing. Fetching `origin/main` proved this was stale-checkout context: the modules are in `dece182`, and both applied migration files are in `69d9ec6`.
+- Added the requested `SUPABASE_SERVICE_ROLE_KEY` repository secret by retrieving it through the authenticated Supabase CLI and piping it directly to GitHub. No value was printed, committed, or copied into repository artifacts.
+- Added the repository-native `dpik-tugas-cloud-ops` skill with a deterministic preflight and a commit-before-apply shared-migration protocol.
+- Clarified that the three-state SQL lifecycle is deliberate startup-slice scope. Role bundle names remain temporary debt and must be reconciled through a later forward migration after stable canonical machine codes are decided.
+- Operator proposed an in-house Android application to avoid browser clutter. Recorded Capacitor as the preferred KIV approach because it reuses the React/Vite implementation; signing-key custody, package registration, update distribution, mobile UX, and WP-130 remain gates before implementation.

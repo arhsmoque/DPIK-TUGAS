@@ -40,3 +40,10 @@ Status captured 2026-07-18. This file is append-only: close items by adding date
 ## Resolution log
 
 Append dated closure notes here, including the evidence path and the exact gap closed.
+
+### 2026-07-18 — Cloud-agent grounding corrected
+
+- Confirmed both startup migration files are tracked on `origin/main` in `69d9ec6`; no migration-source gap exists at the recorded head.
+- Confirmed Identity Access, Project Context, and Work Thread TypeScript modules are tracked in `dece182`.
+- Added `SUPABASE_SERVICE_ROLE_KEY` as a repository secret for trusted CI fixture operations. The P1 CI-workflow gap remains open until the workflow enforces trusted-event isolation and runs the required tests.
+- Added `.agents/skills/dpik-tugas-cloud-ops/` to enforce fetch-first, commit-before-apply, linked-history, credential-safety, and evidence rules.

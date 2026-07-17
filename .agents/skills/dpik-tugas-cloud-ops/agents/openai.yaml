@@ -1,0 +1,4 @@
+interface:
+  display_name: "DPIK TUGAS Cloud Operations"
+  short_description: "Safely synchronize GitHub, Supabase, and CI"
+  default_prompt: "Use $dpik-tugas-cloud-ops to synchronize and verify DPIK TUGAS GitHub, Supabase migrations, and CI safely."
