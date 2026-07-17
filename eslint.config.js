@@ -29,7 +29,9 @@ export default [
         JSX: "readonly",
         crypto: "readonly",
         TextEncoder: "readonly",
-        TextDecoder: "readonly"
+        TextDecoder: "readonly",
+        FormData: "readonly",
+        HTMLFormElement: "readonly"
       }
     },
     plugins: {

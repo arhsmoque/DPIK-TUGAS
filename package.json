@@ -7,8 +7,8 @@
     "node": ">=22"
   },
   "scripts": {
-    "dev": "vite --config apps/internal/vite.config.ts",
-    "build": "tsc --noEmit && vite build --config apps/internal/vite.config.ts",
+    "dev": "node scripts/run-vite-with-arh-env.mjs dev",
+    "build": "tsc --noEmit && node scripts/run-vite-with-arh-env.mjs build",
     "lint": "eslint .",
     "format": "prettier --check .",
     "format:write": "prettier --write .",
