@@ -9,17 +9,21 @@ docs/canonical-handoff/01_ALL_PLANS_CONSOLIDATED.md
 docs/canonical-handoff/04_builder-implementation-program/turn-1/02_WORK_PACKAGE_SEQUENCE.md
 ```
 
-## Current stage
+<!-- project-docs:agents:start -->
+## Generated project snapshot
 
 ```text
-WP-130 — reference-slice qualification is the next safe action. The non-production
-startup now executes Supabase authentication, Project context, CreateWorkThread,
-AssignWork, AcknowledgeAssignment and My Work. Final workflow expansion and
-production schema remain blocked; operational approval is unsigned.
+Status date: 2026-07-18
+Stage: WP-130 — reference-slice qualification is the next safe action.
+Runtime: Non-production startup reference slice is executable locally against the shared Supabase development project.
+Approval: Operational approval is unsigned; pilot and production remain blocked.
+Next safe action: Prove authenticated two-user behavior, negative RLS cases, concurrency, idempotency, recovery, and browser smoke before expanding workflow.
+Owned modules: identity-access, project-context, work-thread
+Latest migration: 20260718011000_fix_assign_work_parameter.sql
 ```
 
-Do not expand business screens or schema beyond the startup reference slice before WP-130 security,
-recovery and browser gates pass.
+Do not expand business screens or schema beyond the startup reference slice before WP-130 security, recovery, idempotency, and browser gates pass.
+<!-- project-docs:agents:end -->
 
 ## Hard constraints
 
@@ -57,6 +61,14 @@ scripts/{verify,generate,diagnostics}
 ## Session trace
 
 Every session touching files leaves a trace in `docs/evidence/` using `docs/evidence/SESSION_TRACE_TEMPLATE.md`. See `docs/decisions/` for the running decision log.
+
+## Documentation as a byproduct
+
+- Update `docs/project-state.json` only when its structured facts change.
+- Run `npm run docs:update` after changing modules, migrations, package scripts, stage, links, or repository metadata.
+- Never hand-edit content inside `project-docs` markers; CI runs `npm run docs:check` and rejects stale generated snapshots.
+- Keep human rationale in decisions, evidence, and the append-only journal. The generator owns factual indexes, not architectural reasoning.
+- `npm run repo:about:plan` is read-only. Run `npm run repo:about:sync` only with explicit operator authority because it mutates GitHub repository settings.
 
 ## Cloud agent handoff
 

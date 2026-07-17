@@ -1,0 +1,35 @@
+{
+  "productName": "DPIK TUGAS",
+  "organisation": "DPI Konsult Sdn Bhd",
+  "repository": "arhsmoque/DPIK-TUGAS",
+  "description": "Internal work assignment and accountability system for DPI Konsult Sdn Bhd.",
+  "homepage": "https://github.com/arhsmoque/DPIK-TUGAS#readme",
+  "topics": ["capacitor-kiv", "internal-tools", "react", "supabase", "typescript", "vite"],
+  "statusDate": "2026-07-18",
+  "stage": "WP-130 — reference-slice qualification is the next safe action.",
+  "runtimeStatus": "Non-production startup reference slice is executable locally against the shared Supabase development project.",
+  "nextSafeAction": "Prove authenticated two-user behavior, negative RLS cases, concurrency, idempotency, recovery, and browser smoke before expanding workflow.",
+  "approvalStatus": "Operational approval is unsigned; pilot and production remain blocked.",
+  "links": [
+    {
+      "label": "GitHub repository",
+      "url": "https://github.com/arhsmoque/DPIK-TUGAS",
+      "audience": "Everyone"
+    },
+    {
+      "label": "Local operator console",
+      "url": "http://127.0.0.1:4173",
+      "audience": "Users after Start-TUGAS.cmd"
+    },
+    {
+      "label": "Supabase project dashboard",
+      "url": "https://supabase.com/dashboard/project/mwvvtbgxnruxgjbffifd",
+      "audience": "Authorized administrators and developers"
+    },
+    {
+      "label": "Supabase REST endpoint",
+      "url": "https://mwvvtbgxnruxgjbffifd.supabase.co/rest/v1/",
+      "audience": "Developers; authentication required"
+    }
+  ]
+}

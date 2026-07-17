@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DPIK TUGAS — User Guide</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #17211b;
+        --muted: #5d6b62;
+        --paper: #f4f7f3;
+        --card: #ffffff;
+        --green: #17633a;
+        --line: #d8e1da;
+        --amber: #9a5c00;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font:
+          16px/1.6 system-ui,
+          sans-serif;
+        color: var(--ink);
+        background: var(--paper);
+      }
+      header {
+        padding: 3.5rem max(1.25rem, calc((100% - 920px) / 2));
+        color: white;
+        background: linear-gradient(135deg, #0e3523, #1b7144);
+      }
+      header p {
+        max-width: 650px;
+        margin-bottom: 0;
+        color: #dcf2e4;
+      }
+      main {
+        max-width: 920px;
+        margin: -1.4rem auto 4rem;
+        padding: 0 1.25rem;
+      }
+      section {
+        margin: 1rem 0;
+        padding: 1.4rem 1.6rem;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: var(--card);
+        box-shadow: 0 8px 28px #173d2510;
+      }
+      h1,
+      h2,
+      h3 {
+        line-height: 1.2;
+      }
+      h2 {
+        color: var(--green);
+      }
+      a {
+        color: var(--green);
+        font-weight: 650;
+      }
+      .steps {
+        counter-reset: step;
+        padding: 0;
+        list-style: none;
+      }
+      .steps li {
+        position: relative;
+        min-height: 2.5rem;
+        margin: 1rem 0;
+        padding-left: 3rem;
+      }
+      .steps li::before {
+        counter-increment: step;
+        content: counter(step);
+        position: absolute;
+        left: 0;
+        width: 2rem;
+        height: 2rem;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        color: white;
+        background: var(--green);
+        font-weight: 750;
+      }
+      .note {
+        border-left: 4px solid var(--amber);
+        padding-left: 1rem;
+        color: var(--muted);
+      }
+      code {
+        padding: 0.15rem 0.35rem;
+        border-radius: 5px;
+        background: #eaf0eb;
+      }
+      nav {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+      @media (max-width: 600px) {
+        header {
+          padding-top: 2.3rem;
+        }
+        section {
+          padding: 1.1rem;
+          border-radius: 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div>DPI Konsult Sdn Bhd</div>
+      <h1>DPIK TUGAS User Guide</h1>
+      <p>
+        How staff sign in, find assigned work, create a Work Thread, and acknowledge an assignment
+        in the current non-production startup.
+      </p>
+    </header>
+    <main>
+      <section>
+        <nav>
+          <a href="http://127.0.0.1:4173">Open TUGAS</a
+          ><a href="admin-guide.html">Administrator guide</a
+          ><a href="https://github.com/arhsmoque/DPIK-TUGAS#readme">Project documentation</a>
+        </nav>
+      </section>
+      <section>
+        <h2>Start and sign in</h2>
+        <ol class="steps">
+          <li>On the configured DPIK workstation, double-click <code>Start-TUGAS.cmd</code>.</li>
+          <li>
+            Wait for the startup health message, then open
+            <a href="http://127.0.0.1:4173">127.0.0.1:4173</a>.
+          </li>
+          <li>Enter your approved work email and choose <strong>Send magic link</strong>.</li>
+          <li>Open the newest Supabase sign-in email on the same device and follow its link.</li>
+        </ol>
+        <p class="note">
+          TUGAS does not store a password. Never forward a sign-in link; it represents your session.
+        </p>
+      </section>
+      <section>
+        <h2>Use My Work</h2>
+        <p>
+          After sign-in, TUGAS resolves your active Project membership and shows Work Threads
+          available to your identity.
+        </p>
+        <ul>
+          <li><strong>Unassigned:</strong> created work that has not yet been delegated.</li>
+          <li>
+            <strong>Awaiting acknowledgement:</strong> assigned work waiting for the assignee to
+            confirm receipt.
+          </li>
+          <li><strong>Assigned:</strong> the assignee has acknowledged the instruction.</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Create, assign, and acknowledge</h2>
+        <h3>Create</h3>
+        <p>
+          Authorized Work Owners enter a clear title, expected outcome, and source reference, then
+          choose <strong>Create</strong>.
+        </p>
+        <h3>Assign</h3>
+        <p>
+          In the startup fixture, the Work Owner can assign an unassigned item to Smoque with the
+          displayed due commitment and reason.
+        </p>
+        <h3>Acknowledge</h3>
+        <p>
+          The named assignee signs in, opens My Work, and chooses <strong>Acknowledge</strong>. Do
+          not acknowledge on another person's behalf.
+        </p>
+      </section>
+      <section>
+        <h2>If something goes wrong</h2>
+        <ul>
+          <li>
+            <strong>No email:</strong> check spam, confirm the address, wait briefly, then request
+            one new link.
+          </li>
+          <li>
+            <strong>No Project membership:</strong> contact the DPIK TUGAS administrator; do not use
+            another person's account.
+          </li>
+          <li>
+            <strong>Stale or rejected action:</strong> refresh My Work before retrying. Report
+            repeated errors with the time and visible message.
+          </li>
+          <li>
+            <strong>Startup unavailable:</strong> close the startup window, run
+            <code>Start-TUGAS.cmd</code> once, and report the log location shown.
+          </li>
+        </ul>
+        <p class="note">
+          This is a non-production reference slice. InProgress, Blocked, acceptance, closure, and
+          production use are not yet authorized.
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

@@ -4,3 +4,4 @@ coverage
 supabase/.temp
 docs/**/*.md
 README.md
+/AGENTS.md
