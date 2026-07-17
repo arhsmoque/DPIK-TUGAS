@@ -27,11 +27,20 @@ export function importSpecifiers(source) {
 }
 
 function moduleNameOf(filePath, modulesRoot) {
-  return relative(modulesRoot, filePath).split("/")[0];
+  return relative(modulesRoot, filePath).split(/[\\/]/)[0];
 }
 
 function layerOf(filePath, modulesRoot) {
-  return relative(modulesRoot, filePath).split("/")[1] ?? "";
+  return relative(modulesRoot, filePath).split(/[\\/]/)[1] ?? "";
+}
+
+const TEST_DOUBLE_IMPORTS = ["FixedClock", "SequentialIdPort"];
+
+function importsTestDouble(source) {
+  return TEST_DOUBLE_IMPORTS.filter((name) => {
+    const namedImport = new RegExp(`import\\s+(?:type\\s+)?\\{[^}]*\\b${name}\\b[^}]*\\}`);
+    return namedImport.test(source);
+  });
 }
 
 export function checkArchitecture(modulesRoot) {
@@ -43,6 +52,14 @@ export function checkArchitecture(modulesRoot) {
     const thisModule = moduleNameOf(file, modulesRoot);
     const thisLayer = layerOf(file, modulesRoot);
     const rel = relative(modulesRoot, file);
+
+    if (!file.endsWith(".test.ts") && (thisLayer === "application" || thisLayer === "adapters")) {
+      for (const testDouble of importsTestDouble(source)) {
+        violations.push(
+          `${rel}: imports test double "${testDouble}" -- application and adapter code must receive production ports through composition.`
+        );
+      }
+    }
 
     for (const spec of importSpecifiers(source)) {
       if (thisLayer === "domain" && FRAMEWORK_OR_PROVIDER_PATTERNS.some((p) => p.test(spec))) {

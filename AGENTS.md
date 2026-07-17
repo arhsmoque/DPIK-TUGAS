@@ -12,12 +12,14 @@ docs/canonical-handoff/04_builder-implementation-program/turn-1/02_WORK_PACKAGE_
 ## Current stage
 
 ```text
-WP-000 — repository baseline. Toolchain, strict TypeScript, architecture-test
-harness, workspace layout. No business logic, no Supabase connection, no
-production secrets required.
+WP-110 — Work Thread application and persistence is the next safe action.
+WP-000, WP-010, WP-020 and WP-100 have passed their local exit gates. No
+business screens or final production schema are authorized yet; operational
+approval remains unsigned.
 ```
 
-Do not implement business screens or database schema before WP-000's exit gate passes and WP-010/WP-020 (foundation contracts, identity/project context) land.
+Do not implement business screens or final production schema before the reference slice and its
+security gates pass. Continue with WP-110 only, then WP-120 and WP-130 in sequence.
 
 ## Hard constraints
 

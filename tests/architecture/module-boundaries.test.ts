@@ -64,6 +64,22 @@ describe("architecture gate", () => {
     expect(result.violations[0]).toContain("@supabase/supabase-js");
   });
 
+  it("recognizes domain folders on Windows-style paths", () => {
+    workDir = mkdtempSync(join(tmpdir(), "arch-test-"));
+    const modulesRoot = join(workDir, "src", "modules");
+
+    fixture(
+      modulesRoot,
+      "work-thread/domain/work-thread.ts",
+      `import React from "react";\nexport const view = React.createElement("div");`
+    );
+
+    const result = checkArchitecture(modulesRoot);
+
+    expect(result.violations).toHaveLength(1);
+    expect(result.violations[0]).toContain("domain code imports");
+  });
+
   it("flags a cross-module import that reaches past the public index", () => {
     workDir = mkdtempSync(join(tmpdir(), "arch-test-"));
     const modulesRoot = join(workDir, "src", "modules");
@@ -78,6 +94,23 @@ describe("architecture gate", () => {
 
     expect(result.violations).toHaveLength(1);
     expect(result.violations[0]).toContain("@modules/identity-access/domain/internal-helper");
+  });
+
+  it("flags foundation test doubles in application or adapter code", () => {
+    workDir = mkdtempSync(join(tmpdir(), "arch-test-"));
+    const modulesRoot = join(workDir, "src", "modules");
+
+    fixture(
+      modulesRoot,
+      "work-thread/application/create-work.ts",
+      `import { FixedClock, SequentialIdPort } from "@foundation/index";\nexport const deps = [FixedClock, SequentialIdPort];`
+    );
+
+    const result = checkArchitecture(modulesRoot);
+
+    expect(result.violations).toHaveLength(2);
+    expect(result.violations[0]).toContain("FixedClock");
+    expect(result.violations[1]).toContain("SequentialIdPort");
   });
 });
 
