@@ -9,24 +9,35 @@ if (command !== "dev" && command !== "build") {
 }
 
 const vaultPath = process.env.ARH_VAULT;
-if (!vaultPath) {
-  console.error("ARH_VAULT is not set; load the generated ARH environment profile first.");
-  process.exit(1);
-}
 
-let vault;
-try {
-  vault = JSON.parse(readFileSync(vaultPath, "utf8"));
-} catch {
-  console.error("Unable to read the ARH vault. No credential values were printed.");
-  process.exit(1);
-}
+let supabaseUrl;
+let supabaseAnonKey;
 
-const supabaseUrl = vault.tugas_supabase_url;
-const supabaseAnonKey = vault.tugas_supabase_anon_key;
-if (typeof supabaseUrl !== "string" || typeof supabaseAnonKey !== "string") {
-  console.error("ARH vault is missing the DPIK TUGAS Supabase browser configuration.");
-  process.exit(1);
+if (vaultPath) {
+  let vault;
+  try {
+    vault = JSON.parse(readFileSync(vaultPath, "utf8"));
+  } catch {
+    console.error("Unable to read the ARH vault. No credential values were printed.");
+    process.exit(1);
+  }
+  supabaseUrl = vault.tugas_supabase_url;
+  supabaseAnonKey = vault.tugas_supabase_anon_key;
+  if (typeof supabaseUrl !== "string" || typeof supabaseAnonKey !== "string") {
+    console.error("ARH vault is missing the DPIK TUGAS Supabase browser configuration.");
+    process.exit(1);
+  }
+} else {
+  supabaseUrl = process.env.VITE_SUPABASE_URL;
+  supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
+  if (typeof supabaseUrl !== "string" || typeof supabaseAnonKey !== "string") {
+    console.error(
+      "Neither ARH_VAULT nor VITE_SUPABASE_URL/VITE_SUPABASE_ANON_KEY are set. " +
+        "Load the ARH environment profile locally, or provide the two VITE_SUPABASE_* " +
+        "variables directly (e.g. from repository secrets in a cloud session)."
+    );
+    process.exit(1);
+  }
 }
 
 const viteBin = resolve("node_modules", "vite", "bin", "vite.js");

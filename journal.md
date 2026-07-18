@@ -44,3 +44,11 @@ Resume at WP-130 reference-slice qualification. First rotate the exposed managem
 - Added the repository-native `dpik-tugas-cloud-ops` skill with a deterministic preflight and a commit-before-apply shared-migration protocol.
 - Clarified that the three-state SQL lifecycle is deliberate startup-slice scope. Role bundle names remain temporary debt and must be reconciled through a later forward migration after stable canonical machine codes are decided.
 - Operator proposed an in-house Android application to avoid browser clutter. Recorded Capacitor as the preferred KIV approach because it reuses the React/Vite implementation; signing-key custody, package registration, update distribution, mobile UX, and WP-130 remain gates before implementation.
+
+## 2026-07-18 — Vite env fallback for cloud sessions
+
+- Operator asked for an impact-radius assessment before letting a cloud agent build `apps/internal` without the local `ARH_VAULT` file. Assessed as low-risk when scoped to the build script alone: single file, no business-scope change, ARH_VAULT/ADR 0006 path unchanged and still takes priority, and no higher-privilege secret (service role key, access token) touched.
+- Deliberately did not wire `.github/workflows/ci.yml`: it triggers on `pull_request`, and mapping repository secrets into that trigger would expose them to fork-originated PRs. That remains the open, separately-gated P1 CI-workflow item.
+- `scripts/run-vite-with-arh-env.mjs` now falls back to `process.env.VITE_SUPABASE_URL`/`VITE_SUPABASE_ANON_KEY` when `ARH_VAULT` is unset, so a cloud session with those two repository secrets available as env vars can run `npm run build`/`npm run dev` without a local vault file.
+- Verified: typecheck, lint, and all 56 tests pass; `npm run build` verified to fail with a clear message when neither credential source is set, and to succeed end-to-end using only the two `VITE_SUPABASE_*` env vars.
+- Evidence: `docs/evidence/2026-07-18-vite-env-fallback.md`.
