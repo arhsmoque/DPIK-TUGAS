@@ -41,8 +41,25 @@ export function App(): JSX.Element {
   const [loading, setLoading] = useState(true);
   const [context, setContext] = useState<StartupContext | null>(null);
   const [work, setWork] = useState<WorkThreadRow[]>([]);
+
+  // Theme dark mode state
+  const [darkMode, setDarkMode] = useState<boolean>(() => {
+    return localStorage.getItem("theme") === "dark";
+  });
+
   const project = context?.projects[0] ?? null;
   const permissions = useMemo(() => new Set(project?.permissions ?? []), [project]);
+
+  // Sync body dark-mode class
+  useEffect(() => {
+    if (darkMode) {
+      document.body.classList.add("dark-mode");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.body.classList.remove("dark-mode");
+      localStorage.setItem("theme", "light");
+    }
+  }, [darkMode]);
 
   const refresh = useCallback(async () => {
     if (!supabase) return;
@@ -167,7 +184,41 @@ export function App(): JSX.Element {
   if (!session) {
     return (
       <main className="login-shell">
+        <div className="login-toggle-container">
+          <button
+            className="theme-toggle-btn"
+            onClick={() => setDarkMode(!darkMode)}
+            aria-label="Toggle Night Mode"
+            title="Toggle Night Mode"
+          >
+            {darkMode ? (
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="12" cy="12" r="4"></circle>
+                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+              </svg>
+            ) : (
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+              </svg>
+            )}
+          </button>
+        </div>
         <section className="login-card">
+          {/* Logo preserved exactly as requested */}
           <div className="mark">DPIK</div>
           <p className="eyebrow">DPI Konsult Sdn Bhd</p>
           <h1>TUGAS startup</h1>
@@ -194,6 +245,7 @@ export function App(): JSX.Element {
   return (
     <div className="shell">
       <aside>
+        {/* Logo preserved exactly as requested */}
         <div className="mark">DPIK</div>
         <h1>TUGAS</h1>
         <nav>
@@ -211,7 +263,40 @@ export function App(): JSX.Element {
             <p className="eyebrow">{project?.organisationName ?? "Loading"}</p>
             <h2>{project?.name ?? "My Work"}</h2>
           </div>
-          <div className="identity">{context?.identity.email}</div>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <button
+              className="theme-toggle-btn"
+              onClick={() => setDarkMode((prev) => !prev)}
+              aria-label="Toggle Night Mode"
+              title="Toggle Night Mode"
+            >
+              {darkMode ? (
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="12" cy="12" r="4"></circle>
+                  <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+                </svg>
+              ) : (
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+              )}
+            </button>
+            <div className="identity">{context?.identity.email}</div>
+          </div>
         </header>
         <section className="health">
           <strong>Startup health</strong>
