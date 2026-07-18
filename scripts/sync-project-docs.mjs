@@ -1,4 +1,4 @@
-import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const root = process.cwd();
@@ -31,21 +31,6 @@ function replaceManagedBlock(path, name, body) {
   if (current === expected) return false;
   if (checkOnly) throw new Error(`${path} is stale; run npm run docs:update`);
   writeFileSync(path, expected, "utf8");
-  return true;
-}
-
-function mirrorFile(sourcePath, targetPath) {
-  const expected = readFileSync(sourcePath, "utf8");
-  let current = null;
-  try {
-    current = readFileSync(targetPath, "utf8");
-  } catch {
-    // A missing generated mirror is repaired in update mode and rejected in check mode.
-  }
-  if (current === expected) return false;
-  if (checkOnly) throw new Error(`${targetPath} is stale; run npm run docs:update`);
-  mkdirSync(join(root, "apps", "internal", "public"), { recursive: true });
-  writeFileSync(targetPath, expected, "utf8");
   return true;
 }
 
@@ -110,15 +95,7 @@ Do not expand business screens or schema beyond the startup reference slice befo
 
 const changed = [
   replaceManagedBlock(join(root, "README.md"), "readme", readmeBody),
-  replaceManagedBlock(join(root, "AGENTS.md"), "agents", agentsBody),
-  mirrorFile(
-    join(root, "user-guide.html"),
-    join(root, "apps", "internal", "public", "user-guide.html")
-  ),
-  mirrorFile(
-    join(root, "admin-guide.html"),
-    join(root, "apps", "internal", "public", "admin-guide.html")
-  )
+  replaceManagedBlock(join(root, "AGENTS.md"), "agents", agentsBody)
 ].some(Boolean);
 
 process.stdout.write(

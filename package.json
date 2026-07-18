@@ -7,7 +7,9 @@
     "node": ">=22"
   },
   "scripts": {
+    "predev": "node scripts/copy-public-docs.mjs",
     "dev": "node scripts/run-vite-with-arh-env.mjs dev",
+    "prebuild": "node scripts/copy-public-docs.mjs",
     "build": "tsc --noEmit && node scripts/run-vite-with-arh-env.mjs build",
     "lint": "eslint .",
     "format": "prettier --check .",
