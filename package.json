@@ -18,6 +18,8 @@
     "docs:check": "node scripts/sync-project-docs.mjs --check",
     "repo:about:plan": "node scripts/sync-github-about.mjs",
     "repo:about:sync": "node scripts/sync-github-about.mjs --apply",
+    "query:log": "node scripts/log-query.mjs",
+    "query:analyze": "node scripts/analyze-query-patterns.mjs",
     "typecheck": "tsc --noEmit --pretty",
     "test": "vitest run",
     "test:watch": "vitest",
