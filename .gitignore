@@ -5,3 +5,10 @@ dist
 *.local
 coverage
 .DS_Store
+
+# Generated at build time by scripts/copy-public-docs.mjs from the root
+# user-guide.html/admin-guide.html -- never commit the copy, or it can go
+# stale relative to its own source (see the docs-staleness incident this
+# fixed).
+apps/internal/public/user-guide.html
+apps/internal/public/admin-guide.html
