@@ -1,15 +1,63 @@
 :root {
   font-family: "Segoe UI", system-ui, sans-serif;
-  color: #142638;
-  background: #f5f6f3;
   font-synthesis: none;
+
+  /* CSS Color System variables for light mode */
+  --ink: #142638;
+  --paper: #f5f6f3;
+  --card: #ffffff;
+  --border: #dce2e5;
+  --muted-text: #5e6c76;
+
+  /* Primary Action Colors */
+  --btn-bg: #17456b;
+  --btn-hover: #103653;
+  --btn-text: #ffffff;
+  --active-bg: #edf3f7;
+  --active-text: #17456b;
+
+  /* Form Colors */
+  --input-border: #aebbc4;
+  --input-bg: #ffffff;
+  --label-text: #41515d;
+
+  /* Divider lines */
+  --divider: #e4e8ea;
 }
+
+/* Calibrated desaturated dark mode values following the ARH Frontend Design Suite */
+body.dark-mode {
+  --ink: #e2e8f0;
+  --paper: #0f172a; /* Slate 900 */
+  --card: #1e293b; /* Slate 800 */
+  --border: #334155; /* Slate 700 */
+  --muted-text: #94a3b8; /* Slate 400 */
+
+  /* Desaturated clean dark blue action highlight */
+  --btn-bg: #2d6b9f;
+  --btn-hover: #1c527f;
+  --btn-text: #ffffff;
+  --active-bg: #334155;
+  --active-text: #38bdf8;
+
+  --input-border: #475569;
+  --input-bg: #1e293b;
+  --label-text: #94a3b8;
+
+  --divider: #334155;
+}
+
 * {
   box-sizing: border-box;
 }
 body {
   margin: 0;
   min-width: 320px;
+  color: var(--ink);
+  background: var(--paper);
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 button,
 input {
@@ -20,13 +68,19 @@ button {
   border: 0;
   border-radius: 8px;
   padding: 0 16px;
-  background: #17456b;
-  color: white;
+  background: var(--btn-bg);
+  color: var(--btn-text);
   font-weight: 700;
   cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
 }
 button:hover {
-  background: #103653;
+  background: var(--btn-hover);
+}
+button:active {
+  transform: scale(0.98);
 }
 button:focus-visible,
 input:focus-visible {
@@ -34,9 +88,16 @@ input:focus-visible {
   outline-offset: 2px;
 }
 .secondary {
-  background: white;
-  color: #17456b;
-  border: 1px solid #b8c4cc;
+  background: var(--card);
+  color: var(--btn-bg);
+  border: 1px solid var(--border);
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease;
+}
+body.dark-mode .secondary {
+  color: #38bdf8;
 }
 .shell {
   min-height: 100vh;
@@ -44,13 +105,18 @@ input:focus-visible {
   grid-template-columns: 240px 1fr;
 }
 aside {
-  background: #fff;
-  border-right: 1px solid #dce2e5;
+  background: var(--card);
+  border-right: 1px solid var(--border);
   padding: 28px 20px;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease;
 }
+
+/* LOGO: Preserved exactly as per 'careful not to flush the logo' instruction */
 .mark {
   width: 64px;
   height: 40px;
@@ -62,6 +128,7 @@ aside {
   font-weight: 900;
   letter-spacing: 0.08em;
 }
+
 aside h1 {
   margin: 0;
   font-size: 22px;
@@ -74,12 +141,16 @@ nav {
 nav span {
   padding: 12px;
   border-radius: 8px;
-  color: #5e6c76;
+  color: var(--muted-text);
+  transition: color 0.3s ease;
 }
 nav .active {
-  color: #17456b;
-  background: #edf3f7;
+  color: var(--active-text);
+  background: var(--active-bg);
   font-weight: 700;
+  transition:
+    color 0.3s ease,
+    background-color 0.3s ease;
 }
 main {
   padding: 32px;
@@ -102,24 +173,34 @@ h2 {
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #6b7780;
+  color: var(--muted-text);
   font-size: 12px;
   font-weight: 800;
 }
 .identity {
   padding: 10px 14px;
-  background: white;
-  border: 1px solid #dce2e5;
+  background: var(--card);
+  border: 1px solid var(--border);
   border-radius: 999px;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease;
 }
 .health {
   display: flex;
   align-items: center;
   gap: 18px;
   padding: 14px 18px;
-  background: #fff;
+  background: var(--card);
   border-left: 4px solid #23875b;
   margin-bottom: 18px;
+  border-top: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  border-radius: 0 8px 8px 0;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease;
 }
 .health button {
   margin-left: auto;
@@ -128,13 +209,23 @@ h2 {
   color: #167044;
   font-weight: 800;
 }
+body.dark-mode .healthy {
+  color: #34d399; /* Green 400 for dark mode */
+}
 .panel {
-  background: white;
-  border: 1px solid #dce2e5;
+  background: var(--card);
+  border: 1px solid var(--border);
   border-radius: 10px;
   padding: 22px;
   margin-bottom: 18px;
-  box-shadow: 0 2px 8px rgb(20 38 56 / 5%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+body.dark-mode .panel {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 .panel h3 {
   margin-top: 0;
@@ -148,14 +239,21 @@ h2 {
 label {
   display: grid;
   gap: 6px;
-  color: #41515d;
+  color: var(--label-text);
   font-weight: 700;
+  transition: color 0.3s ease;
 }
 input {
   min-height: 44px;
-  border: 1px solid #aebbc4;
+  border: 1px solid var(--input-border);
   border-radius: 7px;
   padding: 8px 10px;
+  background: var(--input-bg);
+  color: var(--ink);
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease;
 }
 .work-list {
   display: grid;
@@ -165,7 +263,8 @@ article {
   justify-content: space-between;
   gap: 20px;
   padding: 18px 0;
-  border-top: 1px solid #e4e8ea;
+  border-top: 1px solid var(--divider);
+  transition: border-color 0.3s ease;
 }
 article:first-child {
   border-top: 0;
@@ -176,19 +275,24 @@ article h4 {
 }
 article p {
   margin: 0 0 6px;
-  color: #4f606c;
+  color: var(--label-text);
+  transition: color 0.3s ease;
 }
 article small {
-  color: #6b7780;
+  color: var(--muted-text);
+  transition: color 0.3s ease;
 }
 .badge {
   display: inline-block;
   padding: 4px 8px;
   border-radius: 999px;
-  background: #edf3f7;
-  color: #17456b;
+  background: var(--active-bg);
+  color: var(--active-text);
   font-size: 12px;
   font-weight: 800;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 .actions {
   display: flex;
@@ -203,9 +307,17 @@ article small {
   background: #eaf6ef;
   color: #17633e;
 }
+body.dark-mode .notice {
+  background: #064e3b;
+  color: #a7f3d0;
+}
 .error {
   background: #fff0ef;
   color: #9b2f28;
+}
+body.dark-mode .error {
+  background: #7f1d1d;
+  color: #fca5a5;
 }
 .login-shell,
 .state {
@@ -216,11 +328,18 @@ article small {
 }
 .login-card {
   width: min(440px, 100%);
-  background: white;
+  background: var(--card);
   padding: 34px;
-  border: 1px solid #dce2e5;
+  border: 1px solid var(--border);
   border-radius: 12px;
-  box-shadow: 0 12px 40px rgb(20 38 56 / 10%);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.05);
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+body.dark-mode .login-card {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
 }
 .login-card h1 {
   margin-bottom: 8px;
@@ -230,6 +349,48 @@ article small {
   gap: 14px;
   margin-top: 24px;
 }
+
+/* Theme Toggle Button Style (Class-based, no inline styles) */
+.theme-toggle-btn {
+  min-height: 38px;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--card);
+  color: var(--ink);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(20, 38, 56, 0.05);
+  transition:
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease;
+}
+.theme-toggle-btn:hover {
+  background: var(--active-bg);
+  color: var(--active-text);
+  transform: scale(1.05);
+}
+.theme-toggle-btn:active {
+  transform: scale(0.95);
+}
+.theme-toggle-btn svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+/* Floating login page theme toggle style */
+.login-toggle-container {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+}
+
 @media (max-width: 800px) {
   .shell {
     display: block;
@@ -249,14 +410,32 @@ article small {
     padding: 18px;
   }
   header {
-    align-items: flex-start;
+    align-items: stretch;
     flex-direction: column;
+    gap: 12px;
+  }
+  .identity {
+    font-size: 0.85rem;
+    word-break: break-all;
+    text-align: center;
+    width: 100%;
   }
   .create-form {
     grid-template-columns: 1fr;
   }
+  .create-form button {
+    width: 100%;
+    margin-top: 8px;
+  }
   article {
     flex-direction: column;
+    gap: 12px;
+  }
+  .actions {
+    width: 100%;
+  }
+  .actions button {
+    width: 100%;
   }
   button {
     min-height: 48px;

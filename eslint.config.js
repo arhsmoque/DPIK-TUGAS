@@ -31,7 +31,8 @@ export default [
         TextEncoder: "readonly",
         TextDecoder: "readonly",
         FormData: "readonly",
-        HTMLFormElement: "readonly"
+        HTMLFormElement: "readonly",
+        localStorage: "readonly"
       }
     },
     plugins: {
