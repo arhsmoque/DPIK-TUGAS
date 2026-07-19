@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import { createClient, type Session } from "@supabase/supabase-js";
 import "./app.css";
+import { WorkThreadActions, type WorkThreadRow } from "./WorkThreadActions";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
@@ -19,18 +20,6 @@ interface StartupProject {
 interface StartupContext {
   identity: { id: string; email: string };
   projects: StartupProject[];
-}
-
-interface WorkThreadRow {
-  id: string;
-  title: string;
-  expected_outcome: string;
-  source_reference: string;
-  lifecycle: "Unassigned" | "AwaitingAcknowledgement" | "Assigned";
-  current_assignee_id: string | null;
-  due_at: string | null;
-  version: number;
-  created_at: string;
 }
 
 export function App(): JSX.Element {
@@ -82,7 +71,7 @@ export function App(): JSX.Element {
     const workResult = await supabase
       .from("work_threads")
       .select(
-        "id,title,expected_outcome,source_reference,lifecycle,current_assignee_id,due_at,version,created_at"
+        "id,title,expected_outcome,source_reference,lifecycle,current_assignee_id,due_at,version,created_at,blocked_outcome,blocker_required_resolver,recall_requested_by,recall_reason,renegotiation_requested_by,renegotiation_reason"
       )
       .eq("project_id", projectId)
       .order("created_at", { ascending: false });
@@ -155,19 +144,6 @@ export function App(): JSX.Element {
     if (result.error) setError(result.error.message);
     else {
       setNotice("Assigned to smoque@gmail.com with a 24-hour due commitment.");
-      await refresh();
-    }
-  }
-
-  async function acknowledge(item: WorkThreadRow): Promise<void> {
-    if (!supabase) return;
-    const result = await supabase.rpc("acknowledge_assignment", {
-      target_work_thread_id: item.id,
-      expected_record_version: item.version
-    });
-    if (result.error) setError(result.error.message);
-    else {
-      setNotice("Assignment acknowledged.");
       await refresh();
     }
   }
@@ -339,22 +315,44 @@ export function App(): JSX.Element {
               {work.map((item) => (
                 <article key={item.id}>
                   <div>
-                    <span className="badge">{item.lifecycle}</span>
+                    <span className="status-pill" data-status={item.lifecycle}>
+                      {item.lifecycle}
+                    </span>
                     <h4>{item.title}</h4>
                     <p>{item.expected_outcome}</p>
                     <small>
                       {item.source_reference}
                       {item.due_at ? ` · due ${new Date(item.due_at).toLocaleString()}` : ""}
                     </small>
+                    {item.blocked_outcome && (
+                      <div className="blocker-banner">Blocked: {item.blocked_outcome}</div>
+                    )}
+                    {item.recall_requested_by && (
+                      <div className="negotiation-banner">
+                        Recall requested — {item.recall_reason}
+                      </div>
+                    )}
+                    {item.renegotiation_requested_by && (
+                      <div className="negotiation-banner">
+                        Renegotiation requested — {item.renegotiation_reason}
+                      </div>
+                    )}
                   </div>
                   <div className="actions">
                     {item.lifecycle === "Unassigned" && permissions.has("work.assign") && (
                       <button onClick={() => void assignWork(item)}>Assign to Smoque</button>
                     )}
-                    {item.lifecycle === "AwaitingAcknowledgement" &&
-                      item.current_assignee_id === context?.identity.id && (
-                        <button onClick={() => void acknowledge(item)}>Acknowledge</button>
-                      )}
+                    {supabase && (
+                      <WorkThreadActions
+                        item={item}
+                        identityId={context?.identity.id}
+                        permissions={permissions}
+                        supabase={supabase}
+                        onError={setError}
+                        onSuccess={setNotice}
+                        onChanged={refresh}
+                      />
+                    )}
                   </div>
                 </article>
               ))}

@@ -11,7 +11,14 @@ export default [
     languageOptions: {
       ecmaVersion: "latest",
       sourceType: "module",
-      globals: { console: "readonly", process: "readonly", URL: "readonly", __dirname: "readonly" }
+      globals: {
+        console: "readonly",
+        process: "readonly",
+        URL: "readonly",
+        __dirname: "readonly",
+        fetch: "readonly",
+        setTimeout: "readonly"
+      }
     }
   },
   {

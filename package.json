@@ -23,7 +23,8 @@
     "typecheck": "tsc --noEmit --pretty",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:architecture": "node scripts/verify/check-architecture.mjs"
+    "test:architecture": "node scripts/verify/check-architecture.mjs",
+    "worker:outbox": "node apps/jobs/src/outbox-publisher.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.7",
