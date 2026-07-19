@@ -1,28 +1,51 @@
+/* Token values ported from arhsmoque/legacy-DPIK-TUGAS-App design-tokens.css
+   (v3.2) -- navy/gold DPIK brand, Atkinson Hyperlegible Next for field
+   legibility, Figtree for body text. Variable names kept from this repo's
+   existing shell so the layout code below did not need to change, only the
+   palette and type feeding it. */
+@import url("https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;500;600;700&family=Figtree:wght@400;500;600;700&display=swap");
+
 :root {
-  font-family: "Segoe UI", system-ui, sans-serif;
+  font-family: "Figtree", system-ui, sans-serif;
   font-synthesis: none;
 
-  /* CSS Color System variables for light mode */
-  --ink: #142638;
-  --paper: #f5f6f3;
-  --card: #ffffff;
-  --border: #dce2e5;
-  --muted-text: #5e6c76;
+  --font-heading: "Atkinson Hyperlegible Next", system-ui, sans-serif;
+  --font-body: "Figtree", system-ui, sans-serif;
 
-  /* Primary Action Colors */
-  --btn-bg: #17456b;
-  --btn-hover: #103653;
+  /* CSS Color System variables for light mode */
+  --ink: #1c1917;
+  --paper: #ffffff;
+  --card: #ffffff;
+  --border: #f0eeed;
+  --muted-text: #57534e;
+
+  /* Primary Action Colors (DPIK navy/gold) */
+  --btn-bg: #1e3a5f;
+  --btn-hover: #0a1f44;
   --btn-text: #ffffff;
-  --active-bg: #edf3f7;
-  --active-text: #17456b;
+  --active-bg: #eef1f6;
+  --active-text: #1e3a5f;
+  --accent-gold: #c9972b;
 
   /* Form Colors */
-  --input-border: #aebbc4;
+  --input-border: #d6d3d1;
   --input-bg: #ffffff;
-  --label-text: #41515d;
+  --label-text: #57534e;
 
   /* Divider lines */
-  --divider: #e4e8ea;
+  --divider: #f0eeed;
+
+  /* Status */
+  --status-assigned-bg: #eef1f6;
+  --status-assigned-text: #1e3a5f;
+  --status-progress-bg: #faf1d4;
+  --status-progress-text: #d97706;
+  --status-approved-bg: #d1fae5;
+  --status-approved-text: #059669;
+  --status-critical-bg: #dc2626;
+  --status-critical-text: #ffffff;
+  --status-revision-bg: #fee2e2;
+  --status-revision-text: #dc2626;
 }
 
 /* Calibrated desaturated dark mode values following the ARH Frontend Design Suite */
@@ -39,12 +62,37 @@ body.dark-mode {
   --btn-text: #ffffff;
   --active-bg: #334155;
   --active-text: #38bdf8;
+  --accent-gold: #e8b84b;
 
   --input-border: #475569;
   --input-bg: #1e293b;
   --label-text: #94a3b8;
 
   --divider: #334155;
+
+  --status-assigned-bg: #334155;
+  --status-assigned-text: #93c5fd;
+  --status-progress-bg: #78350f;
+  --status-progress-text: #fbbf24;
+  --status-approved-bg: #064e3b;
+  --status-approved-text: #34d399;
+  --status-critical-bg: #dc2626;
+  --status-critical-text: #ffffff;
+  --status-revision-bg: #7f1d1d;
+  --status-revision-text: #fca5a5;
+}
+
+h1,
+h2,
+h3,
+h4,
+.mark,
+button,
+.badge,
+.status-pill,
+label,
+.eyebrow {
+  font-family: var(--font-heading);
 }
 
 * {
@@ -293,6 +341,60 @@ article small {
   transition:
     background-color 0.3s ease,
     color 0.3s ease;
+}
+.status-pill {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--status-assigned-bg);
+  color: var(--status-assigned-text);
+}
+.status-pill[data-status="InProgress"],
+.status-pill[data-status="AwaitingAcceptance"] {
+  background: var(--status-progress-bg);
+  color: var(--status-progress-text);
+}
+.status-pill[data-status="Closed"] {
+  background: var(--status-approved-bg);
+  color: var(--status-approved-text);
+}
+.status-pill[data-status="Cancelled"] {
+  background: var(--status-revision-bg);
+  color: var(--status-revision-text);
+}
+.blocker-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 14px;
+  border-left: 4px solid var(--status-critical-bg);
+  background: var(--status-revision-bg);
+  color: var(--status-revision-text);
+  border-radius: 0 7px 7px 0;
+  font-size: 13px;
+  margin-top: 8px;
+}
+.negotiation-banner {
+  padding: 10px 14px;
+  border-left: 4px solid var(--accent-gold);
+  background: var(--status-progress-bg);
+  color: var(--status-progress-text);
+  border-radius: 0 7px 7px 0;
+  font-size: 13px;
+  margin-top: 8px;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: flex-start;
+}
+.actions button {
+  min-height: 36px;
+  padding: 0 12px;
+  font-size: 13px;
 }
 .actions {
   display: flex;
