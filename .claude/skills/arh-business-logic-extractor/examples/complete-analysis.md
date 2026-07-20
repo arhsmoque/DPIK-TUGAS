@@ -1,6 +1,6 @@
 # Complete Business Logic Analysis Example (Annotated)
 
-*This is a sample of a full business logic extraction from one project. Replace "Geolocation Query" and all domain terms (e.g. MSISDN, target, credits) with your project's domain. Annotations explain what makes a high-quality analysis.*
+_This is a sample of a full business logic extraction from one project. Replace "Geolocation Query" and all domain terms (e.g. MSISDN, target, credits) with your project's domain. Annotations explain what makes a high-quality analysis._
 
 **Source (example path):** `[bl_root]/endpoints/geolocation-query-creation.md`
 **Analysis Date:** 2026-03-20
@@ -25,9 +25,9 @@
 
 # Geolocation Query Creation
 
-*Analysis generated: 2026-03-20*
-*Code analyzed: `backend/pinpoint/apps/core/views/geolocation.py:69-472` (GeolocationApiView.post)*
-*Last updated: 2026-03-20*
+_Analysis generated: 2026-03-20_
+_Code analyzed: `backend/pinpoint/apps/core/views/geolocation.py:69-472` (GeolocationApiView.post)_
+_Last updated: 2026-03-20_
 
 ## Quick Summary
 
@@ -48,6 +48,7 @@ Initiates a geolocation lookup request to locate a mobile subscriber based on th
 ⚠️ **Note:** The distinction between "request management" vs "actual lookup" is critical for understanding Pinpoint's architecture. This is a common pattern throughout the system.
 
 **Query Types Supported:**
+
 - **Single**: One-time immediate lookup
 - **Single Program**: Scheduled for a specific date/time range
 - **Proximity**: Recurrent distance monitoring between two targets
@@ -61,12 +62,12 @@ Initiates a geolocation lookup request to locate a mobile subscriber based on th
 
 💡 **Quality Indicator:** This table separates WHO can use the system from WHAT they can do. Notice the inclusion of both human users (Analyst, Supervisor) AND external systems (Middleware Provider) - this is often overlooked in technical documentation.
 
-| Actor | Description | Permissions |
-|-------|-------------|--------------|
-| **Authenticated User** | Creates geolocation queries for their assigned targets | Must have `has_query_create_permission()` |
-| **Analyst** | Standard user role (subject to quota and credit limits) | Requires GEO quota > 0 |
-| **Supervisor/Superuser** | Elevated role (may bypass credit limits) | Full query permissions |
-| **Middleware Provider** | External service that performs actual lookups | Integrates via webhook callbacks |
+| Actor                    | Description                                             | Permissions                               |
+| ------------------------ | ------------------------------------------------------- | ----------------------------------------- |
+| **Authenticated User**   | Creates geolocation queries for their assigned targets  | Must have `has_query_create_permission()` |
+| **Analyst**              | Standard user role (subject to quota and credit limits) | Requires GEO quota > 0                    |
+| **Supervisor/Superuser** | Elevated role (may bypass credit limits)                | Full query permissions                    |
+| **Middleware Provider**  | External service that performs actual lookups           | Integrates via webhook callbacks          |
 
 📚 **See Also:** The permission check function `has_query_create_permission()` is referenced in Section 4 (Main Flow) and Section 5 (Decision Rules).
 
@@ -81,22 +82,26 @@ Initiates a geolocation lookup request to locate a mobile subscriber based on th
 ⚠️ **Note:** Preconditions include BOTH explicit validation (what the code checks) AND implicit requirements (what must be true for the system to work). For example, "valid credentials" is implicit because authentication happens before this view.
 
 **User Requirements:**
+
 - User must be authenticated with valid credentials
 - User must have GEO quota available (if quota enforcement enabled)
 - User must have sufficient credits (if credit limit enforcement enabled and user is analyst)
 
 **Target Requirements:**
+
 - Identifier must be provided (MSISDN or IMSI)
 - If IMSI provided, system will lookup associated MSISDN automatically
 - At least one geolocation methodology must be selected (standard, special, or live)
 
 **Scheduling Requirements (if applicable):**
+
 - For scheduled queries: `schedule_frequency > 0` and `ttl > 0`
 - For date-ranged queries: valid `date_start` and `date_end`
 - For proximity: second target identifier required
 - For geofence: lat/lon/radius and alert type required
 
 **Methodology Constraints:**
+
 - At least one methodology must be selected
 - "live" methodology cannot be combined with "standard" or "special"
 
@@ -113,7 +118,9 @@ Initiates a geolocation lookup request to locate a mobile subscriber based on th
 ⚠️ **Note:** Step numbers correspond to the ORDER of operations in the code, but each step could stand alone as a business rule.
 
 ### Step 1: Credit Limit Pre-Check (Conditional)
+
 **Triggered when:** `ENFORCE_CREDIT_LIMIT = True` AND user is analyst
+
 1. Build query parameters (MSISDN, methodologies, MNC/MCC)
 2. Get theoretical cost from pricing service
 3. Check if user has sufficient available credits
@@ -125,7 +132,9 @@ Initiates a geolocation lookup request to locate a mobile subscriber based on th
 ✅ **Checklist:** Conditional trigger clearly documented, error response specified, pre-check vs reservation distinction noted.
 
 ### Step 2: Quota Pre-Check
+
 **Always executed:**
+
 1. Call `QuotaCheckService.can_perform_action(user, query_type="GEO", count=1)`
 2. Service checks:
    - User's GEO quota remaining balance
@@ -139,6 +148,7 @@ Initiates a geolocation lookup request to locate a mobile subscriber based on th
 ✅ **Checklist:** Service call documented, all three checks listed, error response specified.
 
 ### Step 3: Identifier Resolution
+
 1. Accept either `imsi` or `identifier` (MSISDN) from request
 2. If only IMSI provided:
    - Lookup MSISDN record with matching IMSI
@@ -151,6 +161,7 @@ Initiates a geolocation lookup request to locate a mobile subscriber based on th
 ✅ **Checklist:** Input field aliasing documented, fallback behavior specified, normalization step noted.
 
 ### Step 4: Permission Check
+
 1. Call `has_query_create_permission(user)`
 2. **If denied**: Reject with HTTP 403 Forbidden
 3. **If allowed**: Continue to methodology validation
@@ -160,6 +171,7 @@ Initiates a geolocation lookup request to locate a mobile subscriber based on th
 ✅ **Checklist:** Permission function named, error response specified, ordering rationale clear.
 
 ### Step 5: Methodology Validation
+
 1. Extract methodology flags: `geo_standard`, `geo_special`, `geo_live`
 2. **Validation rules:**
    - At least one methodology must be selected → HTTP 400 if none
@@ -171,20 +183,22 @@ Initiates a geolocation lookup request to locate a mobile subscriber based on th
 ✅ **Checklist:** Validation rules explicit, error codes specified, post-validation transformation noted.
 
 ### Step 6: Event Type Detection
+
 Based on request parameters, determine query type:
 
-| Event Type | Trigger Condition | Metadata Fields |
-|------------|-------------------|-----------------|
-| **single** | No scheduling parameters | methodologies only |
-| **proximity** | `target2` + date range | target1, target2, radius, known_locations, stop_condition |
-| **geofence** | lat + lon + radius + alert | lat, lon, radius, alert, stop_condition |
-| **single_program** | date_start + date_end | date_start, date_end |
+| Event Type         | Trigger Condition          | Metadata Fields                                           |
+| ------------------ | -------------------------- | --------------------------------------------------------- |
+| **single**         | No scheduling parameters   | methodologies only                                        |
+| **proximity**      | `target2` + date range     | target1, target2, radius, known_locations, stop_condition |
+| **geofence**       | lat + lon + radius + alert | lat, lon, radius, alert, stop_condition                   |
+| **single_program** | date_start + date_end      | date_start, date_end                                      |
 
 💡 **Quality Indicator:** Table format makes it easy to see which parameters trigger which query types. Notice the metadata fields column - this shows what data gets stored for each type.
 
 ✅ **Checklist:** All event types listed, trigger conditions specified, metadata fields documented.
 
 ### Step 7: Geolocation Creation
+
 1. Build metadata dict with event_type and methodologies
 2. Validate with `GeolocationSerializer`
 3. **If invalid**: Return HTTP 400 with validation errors
@@ -198,7 +212,9 @@ Based on request parameters, determine query type:
 ✅ **Checklist:** Validation specified, persistence noted, side-effect call documented.
 
 ### Step 8: Credit Reservation (Conditional)
+
 **Triggered when:** `ENFORCE_CREDIT_LIMIT = True` AND user is analyst
+
 1. Rebuild query params from saved geolocation (for consistency)
 2. Get final cost from pricing service
 3. Call `CreditService.reserve_credits(user, amount, query_id, query_type="GEO")`
@@ -211,7 +227,9 @@ Based on request parameters, determine query type:
 ✅ **Checklist:** Conditional trigger documented, consistency rationale provided ("rebuild for consistency"), error handling explicit.
 
 ### Step 9: Quota Consumption
+
 **Always executed:**
+
 1. Call `QuotaModificationService.update_quota_usage(user, "GEO", count=1, reason)`
 2. Service decrements user's GEO quota remaining
 3. Creates `QuotaUsageLog` entry with transaction details
@@ -222,6 +240,7 @@ Based on request parameters, determine query type:
 ✅ **Checklist:** Service call documented, side effects listed (decrement + log), response data specified.
 
 ### Step 10: Target/Operation/MSISDN Creation
+
 1. Create/get default "Rogue" target and operation
 2. Create/get MSISDN record for the identifier
 3. Link MSISDN to target
@@ -232,7 +251,9 @@ Based on request parameters, determine query type:
 ✅ **Checklist:** Default values documented, race condition prevention noted, relationship creation specified.
 
 ### Step 11: Scheduling (If Applicable)
+
 **For scheduled/recurrent queries:**
+
 - **Recurrent** (`schedule_frequency > 0`): Call `schedule_geolocation_creation(id)`
 - **One-time** (date range): Call `schedule_one_time_geolocation(id)`
 - **Immediate**: No scheduling needed
@@ -242,7 +263,9 @@ Based on request parameters, determine query type:
 ✅ **Checklist:** All scheduling paths documented, conditional logic clear.
 
 ### Step 12: Response
+
 Return HTTP 201 with:
+
 - Serialized geolocation data
 - Geofence metadata (if applicable)
 - Quota information (remaining, next reset, status)
@@ -262,21 +285,22 @@ Return HTTP 201 with:
 
 ⚠️ **Note:** "Special Behaviors" section documents NON-VALIDATION logic - things that happen differently based on conditions but don't cause rejections.
 
-| Condition | Action | Error Code |
-|-----------|--------|------------|
-| `ENFORCE_CREDIT_LIMIT=True` AND analyst AND insufficient credits | Reject query | `INSUFFICIENT_CREDITS` (403) |
-| User GEO quota remaining = 0 | Reject query | `QUOTA_EXCEEDED` (403) |
-| User quota status = "suspended" | Reject query | `QUOTA_EXCEEDED` (403) |
-| `has_query_create_permission() = False` | Reject query | HTTP 403 Forbidden |
-| No methodology selected | Reject request | HTTP 400 (validation error) |
-| `live` methodology combined with `standard`/`special` | Reject request | HTTP 400 ("Live methodology cannot be combined...") |
-| Proximity: target2 invalid (not numeric or >20 digits) | Reject request | HTTP 400 ("target2 must be a valid numeric phone number") |
-| Date range validation fails | Reject request | HTTP 400 (date validation error) |
-| Serializer validation fails | Reject request | HTTP 400 (field errors) |
+| Condition                                                        | Action         | Error Code                                                |
+| ---------------------------------------------------------------- | -------------- | --------------------------------------------------------- |
+| `ENFORCE_CREDIT_LIMIT=True` AND analyst AND insufficient credits | Reject query   | `INSUFFICIENT_CREDITS` (403)                              |
+| User GEO quota remaining = 0                                     | Reject query   | `QUOTA_EXCEEDED` (403)                                    |
+| User quota status = "suspended"                                  | Reject query   | `QUOTA_EXCEEDED` (403)                                    |
+| `has_query_create_permission() = False`                          | Reject query   | HTTP 403 Forbidden                                        |
+| No methodology selected                                          | Reject request | HTTP 400 (validation error)                               |
+| `live` methodology combined with `standard`/`special`            | Reject request | HTTP 400 ("Live methodology cannot be combined...")       |
+| Proximity: target2 invalid (not numeric or >20 digits)           | Reject request | HTTP 400 ("target2 must be a valid numeric phone number") |
+| Date range validation fails                                      | Reject request | HTTP 400 (date validation error)                          |
+| Serializer validation fails                                      | Reject request | HTTP 400 (field errors)                                   |
 
 ✅ **Checklist:** Complete decision table with condition, action, and error response. Covers all rejection paths.
 
 **Special Behaviors:**
+
 - IMSI input → Auto-lookup associated MSISDN
 - Credit check happens before quota check
 - Credits reserved after creation (not before)
@@ -317,15 +341,15 @@ stateDiagram-v2
 
 ### State Meanings
 
-| State | Trigger | Business Meaning |
-|-------|---------|------------------|
-| **PENDING** | Query created | Awaiting middleware processing |
-| **PROCESSING** | Middleware callback received | Active lookup in progress |
-| **COMPLETED** | Successful response | Location data available |
-| **FAILED** | Provider error/timeout | Lookup failed permanently |
-| **STOPPED** | User cancelled OR TTL expired | Query terminated |
-| **PAUSED** | User paused | Scheduled query temporarily suspended |
-| **INVALID** | Validation failure | Query rejected |
+| State          | Trigger                       | Business Meaning                      |
+| -------------- | ----------------------------- | ------------------------------------- |
+| **PENDING**    | Query created                 | Awaiting middleware processing        |
+| **PROCESSING** | Middleware callback received  | Active lookup in progress             |
+| **COMPLETED**  | Successful response           | Location data available               |
+| **FAILED**     | Provider error/timeout        | Lookup failed permanently             |
+| **STOPPED**    | User cancelled OR TTL expired | Query terminated                      |
+| **PAUSED**     | User paused                   | Scheduled query temporarily suspended |
+| **INVALID**    | Validation failure            | Query rejected                        |
 
 💡 **Quality Indicator:** The table explains BUSINESS meaning, not technical implementation. "Awaiting middleware processing" is more informative than "status field set to PENDING".
 
@@ -343,19 +367,20 @@ stateDiagram-v2
 
 ### Credit Charging (When ENFORCE_CREDIT_LIMIT=True)
 
-| Event | Credit Impact | Notes |
-|-------|---------------|-------|
-| **Pre-check** | No deduction | Only checks availability |
-| **After creation** | Reserve credits | `CreditService.reserve_credits()` called |
-| **On completion** | Consume reserved | Reserved → consumed via webhook |
-| **On failure** | Release reserved | Full refund if query fails |
-| **On cancellation** | Partial/no refund | Depends on timing |
+| Event               | Credit Impact     | Notes                                    |
+| ------------------- | ----------------- | ---------------------------------------- |
+| **Pre-check**       | No deduction      | Only checks availability                 |
+| **After creation**  | Reserve credits   | `CreditService.reserve_credits()` called |
+| **On completion**   | Consume reserved  | Reserved → consumed via webhook          |
+| **On failure**      | Release reserved  | Full refund if query fails               |
+| **On cancellation** | Partial/no refund | Depends on timing                        |
 
 💡 **Quality Indicator:** Table format shows the LIFECYCLE of credit reservation. This is critical for understanding when money is actually spent.
 
 ✅ **Checklist:** Complete credit lifecycle with timing, direction, and service calls.
 
 **Credit Calculation Factors:**
+
 - MSISDN (phone number)
 - Methodologies (standard, special, live)
 - MNC (Mobile Network Code)
@@ -371,12 +396,13 @@ stateDiagram-v2
 
 ### Quota Consumption (Always Enforced)
 
-| Event | Quota Impact |
-|-------|-------------|
-| **After successful creation** | -1 GEO quota |
-| **Low quota warning** | ≤ 5 remaining (included in response) |
+| Event                         | Quota Impact                         |
+| ----------------------------- | ------------------------------------ |
+| **After successful creation** | -1 GEO quota                         |
+| **Low quota warning**         | ≤ 5 remaining (included in response) |
 
 **Quota Info Returned:**
+
 - `used`: Number of GEO queries used in current period
 - `remaining`: Quota remaining (null = unlimited or disabled)
 - `total`: Total quota for period
@@ -458,6 +484,7 @@ stateDiagram-v2
 💡 **Quality Indicator:** Organized by ENTITY (Geolocation, QuotaUsageLog, etc.) rather than by when the write happens. This makes it easier to understand the complete data model impact.
 
 **Geolocation Record:**
+
 - `id`: Auto-generated primary key
 - `identifier`: MSISDN or IMSI
 - `identifier_type`: "msisdn" or "imsi" (auto-detected for 15-digit numbers starting with 334)
@@ -471,6 +498,7 @@ stateDiagram-v2
 ✅ **Checklist:** All fields documented with data types and default values. Includes business logic notes (auto-detection logic).
 
 **QuotaUsageLog:**
+
 - `user`: User who consumed quota
 - `query_type`: "GEO"
 - `count`: 1
@@ -478,6 +506,7 @@ stateDiagram-v2
 - `transaction_id`: Auto-generated
 
 **CreditLedgerEntry (if ENFORCE_CREDIT_LIMIT=True):**
+
 - `user`: User who reserved credits
 - `action`: "RESERVE"
 - `amount`: Credit cost
@@ -485,6 +514,7 @@ stateDiagram-v2
 - `query_type`: "GEO"
 
 **Target/Operation/MSISDN:**
+
 - `Target`: "Rogue" (auto-created)
 - `Operation`: "Rogue" (auto-created)
 - `Msisdn`: Phone number record (get_or_create)
@@ -552,11 +582,13 @@ stateDiagram-v2
 ⚠️ **Note:** Line numbers are specific to the analyzed version (69-472). These may change as the code evolves.
 
 **Primary Entry Point:**
+
 - `backend/pinpoint/apps/core/views/geolocation.py:69-472` - `GeolocationApiView.post()`
 
 ✅ **Checklist:** Entry point documented with specific line numbers. Function name provided.
 
 **Supporting Files:**
+
 - `backend/pinpoint/apps/core/services/credit_service.py` - `CreditService.check_available_credits()`, `reserve_credits()`
 - `backend/pinpoint/apps/core/services/quota_check_service.py` - `QuotaCheckService.can_perform_action()`
 - `backend/pinpoint/apps/core/services/quota_modification_service.py` - `QuotaModificationService.update_quota_usage()`
@@ -569,6 +601,7 @@ stateDiagram-v2
 ✅ **Checklist:** All supporting files listed with specific functions/classes. Organized by type (services, serializers, utils).
 
 **Related Models:**
+
 - `backend/pinpoint/apps/core/models/geolocation.py` - `Geolocation`
 - `backend/pinpoint/apps/core/models/user.py` - `User`
 - `backend/pinpoint/apps/core/models/quota_v2.py` - `UserQuota`, `QuotaPolicy`
@@ -694,4 +727,4 @@ Each section serves a specific purpose and audience. Skip any section and you lo
 
 ---
 
-*This annotated example was created to demonstrate high-quality business logic documentation. Use it as a reference when creating or reviewing analyses.*
+_This annotated example was created to demonstrate high-quality business logic documentation. Use it as a reference when creating or reviewing analyses._

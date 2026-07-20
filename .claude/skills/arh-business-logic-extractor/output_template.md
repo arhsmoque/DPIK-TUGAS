@@ -1,12 +1,13 @@
 # Business Logic Reverse Engineering
 
-*Generated from code analysis on {DATE}*
+_Generated from code analysis on {DATE}_
 
 ## 1. Business Purpose
 
 What business capability this code provides.
 
 **Example:**
+
 > This code creates an order from validated request data and reserves inventory (replace with your domain).
 
 ---
@@ -16,6 +17,7 @@ What business capability this code provides.
 Who uses or triggers this functionality.
 
 **Example:**
+
 > - **Internal User**: User performing the operation
 > - **API Client**: External system integrating with the platform
 > - **Scheduler**: Automated periodic jobs
@@ -28,6 +30,7 @@ Who uses or triggers this functionality.
 What must be true before this code runs successfully.
 
 **Example:**
+
 > - User must be authenticated and authorized for this operation
 > - Required entities must exist and be in a valid state
 > - Account balance (if applicable) must be sufficient
@@ -40,6 +43,7 @@ What must be true before this code runs successfully.
 Step-by-step business flow, NOT code structure.
 
 **Example:**
+
 > 1. **Validate request**: Check input format and permissions
 > 2. **Determine eligibility**: Verify preconditions and balance (if applicable)
 > 3. **Choose route**: Select handler or provider if multiple options exist
@@ -56,14 +60,15 @@ Step-by-step business flow, NOT code structure.
 Explicit if/then rules in business language.
 
 **Example:**
-> | Condition | Action |
-> |-----------|--------|
-> | Invalid or missing required field | Reject with clear validation error |
-> | Insufficient balance/quota | Reject with "Insufficient balance" (or equivalent) |
-> | External service timeout | Retry with fallback or retry policy |
-> | All retries fail | Mark as FAILED, apply refund policy if any |
-> | Operation cancelled after commit | No refund (already consumed) |
-> | Business rule violation | Reject with specific reason |
+
+> | Condition                         | Action                                             |
+> | --------------------------------- | -------------------------------------------------- |
+> | Invalid or missing required field | Reject with clear validation error                 |
+> | Insufficient balance/quota        | Reject with "Insufficient balance" (or equivalent) |
+> | External service timeout          | Retry with fallback or retry policy                |
+> | All retries fail                  | Mark as FAILED, apply refund policy if any         |
+> | Operation cancelled after commit  | No refund (already consumed)                       |
+> | Business rule violation           | Reject with specific reason                        |
 
 ---
 
@@ -72,6 +77,7 @@ Explicit if/then rules in business language.
 How statuses change during the flow.
 
 **Example:**
+
 ```mermaid
 stateDiagram-v2
     [*] --> PENDING: Query created
@@ -88,6 +94,7 @@ stateDiagram-v2
 ```
 
 **State meanings:**
+
 - **PENDING**: Created but not yet sent to provider
 - **PROCESSING**: Active request in flight to provider
 - **COMPLETED**: Successfully received location data
@@ -103,14 +110,15 @@ stateDiagram-v2
 When credits are charged, refunded, skipped, or adjusted.
 
 **Example (omit or shorten if no billing):**
-> | Event | Impact |
-> |-------|--------|
-> | Operation created | Charge/reserve per policy |
-> | Operation fails (before commit) | Refund/release per policy |
-> | Timeout or partial failure | Partial refund or no refund per policy |
-> | User cancels before commit | Full refund/release |
-> | User cancels after commit | No refund (or per policy) |
-> | Retry attempt | No double charge; idempotency per policy |
+
+> | Event                           | Impact                                   |
+> | ------------------------------- | ---------------------------------------- |
+> | Operation created               | Charge/reserve per policy                |
+> | Operation fails (before commit) | Refund/release per policy                |
+> | Timeout or partial failure      | Partial refund or no refund per policy   |
+> | User cancels before commit      | Full refund/release                      |
+> | User cancels after commit       | No refund (or per policy)                |
+> | Retry attempt                   | No double charge; idempotency per policy |
 
 ---
 
@@ -119,6 +127,7 @@ When credits are charged, refunded, skipped, or adjusted.
 Invalid input, unsupported paths, fallback behavior, and special cases.
 
 **Example:**
+
 > - **Empty response from external service**: Treated as failure; apply error/refund policy
 > - **Invalid or boundary values**: Document how they are validated and returned
 > - **Duplicate request**: Idempotency rules (e.g. return cached result, no double charge)
@@ -135,13 +144,16 @@ Invalid input, unsupported paths, fallback behavior, and special cases.
 Key business-relevant persistence effects.
 
 **Example:**
+
 > **Written:**
+>
 > - Main domain record(s) (e.g. Order, Request, Job) with status and key fields
 > - Transaction/ledger entries if billing applies
 > - Audit log entries if required
 > - Cache or idempotency keys if used
 >
 > **Read:**
+>
 > - Entity records needed for eligibility and routing
 > - Account/balance or quota
 > - Configuration (routing, retry, limits)
@@ -154,6 +166,7 @@ Key business-relevant persistence effects.
 What cannot be safely inferred from the code.
 
 **Example:**
+
 > - ⚠️ **Unclear**: What happens if balance goes negative (or similar) during the operation?
 > - ⚠️ **Unknown**: Retry count and backoff (fixed vs unbounded)
 > - ⚠️ **Contradiction**: Doc vs code on timing or thresholds (note exact values)
@@ -168,6 +181,7 @@ What cannot be safely inferred from the code.
 Specific files and line numbers for traceability.
 
 **Example:**
+
 > - Entry point: `path/to/views.py:start-end` (`HandlerName.create` or equivalent)
 > - Validation: `path/to/validators.py:line-range`
 > - External call: `path/to/service.py:line-range`
@@ -176,4 +190,4 @@ Specific files and line numbers for traceability.
 
 ---
 
-*End of analysis*
+_End of analysis_

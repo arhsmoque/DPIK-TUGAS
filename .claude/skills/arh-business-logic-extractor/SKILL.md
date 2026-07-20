@@ -7,10 +7,11 @@ description: Reverse engineers the *business* logic behind a repository — oper
 
 This skill sits **downstream of** `arh-repo-codebase-inspector`, not in competition with it. The
 inspector answers "what is this code shaped like" (directories, symbols, hotspots, TS/JS
-architecture). This skill answers "what does this code *mean* in business terms" — the same
+architecture). This skill answers "what does this code _mean_ in business terms" — the same
 distinction its Core Principle makes explicit:
 
 > **Never confuse code structure with business structure.**
+>
 > - Technical structure: `view -> serializer -> service -> provider -> model`
 > - Business structure: `validate request -> determine eligibility -> choose route -> execute lookup -> normalize result -> update record -> charge credits`
 

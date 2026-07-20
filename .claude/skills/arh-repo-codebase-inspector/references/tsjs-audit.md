@@ -27,23 +27,23 @@ These signals do not change the audit score. Findings remain the scored action s
 
 ## Rule catalog
 
-| Rule | Meaning |
-| --- | --- |
-| `ARC001` | Non-test domain source imports an external runtime package. |
-| `ARC002` | Domain source depends on an outer/application layer. |
-| `ARC003` | Application source depends directly on an outer layer. |
-| `ARC004` | One module imports another module's internals instead of its public index. |
-| `ARC005` | Internal import graph contains a circular component. |
-| `PORT001` | A text artifact contains an absolute Windows or user-home path; evidence is redacted. Fires at `medium` on source/config files and `low` on `.md` documentation, since a hardcoded path in prose is lower-risk than one baked into runtime code. |
-| `PORT002` | Runtime source embeds a local-only endpoint without an environment-based expression on that line. |
-| `SEC001` | A strong credential pattern appears in non-test source; evidence is redacted. |
-| `SEC002` | Runtime source uses `eval` or dynamic `Function`. |
-| `DEP001` | An external package import is undeclared. |
-| `DEP002` | A runtime dependency has no static import; validate dynamic/config-driven use before removal. |
-| `QUAL001` | A non-test source exceeds the configured line threshold. |
-| `QUAL002` | An import traverses three or more parent directories. |
-| `QUAL003` | Equivalent JavaScript is duplicated across sibling module-format variants. |
-| `CFG001`–`CFG006` | Package manifest, quality scripts, TypeScript strictness/checkJs, and lockfile hygiene. |
+| Rule              | Meaning                                                                                                                                                                                                                                          |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `ARC001`          | Non-test domain source imports an external runtime package.                                                                                                                                                                                      |
+| `ARC002`          | Domain source depends on an outer/application layer.                                                                                                                                                                                             |
+| `ARC003`          | Application source depends directly on an outer layer.                                                                                                                                                                                           |
+| `ARC004`          | One module imports another module's internals instead of its public index.                                                                                                                                                                       |
+| `ARC005`          | Internal import graph contains a circular component.                                                                                                                                                                                             |
+| `PORT001`         | A text artifact contains an absolute Windows or user-home path; evidence is redacted. Fires at `medium` on source/config files and `low` on `.md` documentation, since a hardcoded path in prose is lower-risk than one baked into runtime code. |
+| `PORT002`         | Runtime source embeds a local-only endpoint without an environment-based expression on that line.                                                                                                                                                |
+| `SEC001`          | A strong credential pattern appears in non-test source; evidence is redacted.                                                                                                                                                                    |
+| `SEC002`          | Runtime source uses `eval` or dynamic `Function`.                                                                                                                                                                                                |
+| `DEP001`          | An external package import is undeclared.                                                                                                                                                                                                        |
+| `DEP002`          | A runtime dependency has no static import; validate dynamic/config-driven use before removal.                                                                                                                                                    |
+| `QUAL001`         | A non-test source exceeds the configured line threshold.                                                                                                                                                                                         |
+| `QUAL002`         | An import traverses three or more parent directories.                                                                                                                                                                                            |
+| `QUAL003`         | Equivalent JavaScript is duplicated across sibling module-format variants.                                                                                                                                                                       |
+| `CFG001`–`CFG006` | Package manifest, quality scripts, TypeScript strictness/checkJs, and lockfile hygiene.                                                                                                                                                          |
 
 ## Policy configuration
 

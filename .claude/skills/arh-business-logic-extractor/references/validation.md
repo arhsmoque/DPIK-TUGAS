@@ -1,6 +1,6 @@
 # Validation and Quality Assurance
 
-*Last updated: 2026-03-15*
+_Last updated: 2026-03-15_
 
 ## Overview
 
@@ -21,10 +21,12 @@ When you can't infer business logic from code, it's critical to document what yo
 ✅ **Include line numbers** where the ambiguity exists
 
 **Example:**
+
 ```markdown
 ## 10. Ambiguities / Questions
 
 **UNKNOWN: TTL field purpose**
+
 - **Location:** `geolocation.py:145` (TTL parameter)
 - **What we know:** Code sets default=3600, but no business rationale documented
 - **Why ambiguous:** No comment in code, no specification document
@@ -44,8 +46,10 @@ When you can't infer business logic from code, it's critical to document what yo
 ### Common Ambiguity Patterns
 
 **Pattern 1: Default Values Without Rationale**
+
 ```markdown
 **UNKNOWN: Default quota limit of 1000**
+
 - **Location:** `models/user.py:45` (quota_limit field)
 - **What we know:** Default is 1000, max is 10000
 - **Why ambiguous:** No business reason for 1000 vs 500 or 2000
@@ -54,8 +58,10 @@ When you can't infer business logic from code, it's critical to document what yo
 ```
 
 **Pattern 2: Silent Failure Modes**
+
 ```markdown
 **UNKNOWN: Empty except block at line 289**
+
 - **Location:** `services/credit.py:289`
 - **What we know:** Catches all exceptions but logs nothing
 - **Why ambiguous:** Is this intentional (best-effort) or a bug?
@@ -65,8 +71,10 @@ When you can't infer business logic from code, it's critical to document what yo
 ```
 
 **Pattern 3: Config-Driven Behavior**
+
 ```markdown
 **UNKNOWN: Behavior when FEATURE_X_ENABLED = False**
+
 - **Location:** Multiple files check this setting
 - **What we know:** Code branches based on this flag
 - **Why ambiguous:** Only tested with True, False path untested
@@ -75,8 +83,10 @@ When you can't infer business logic from code, it's critical to document what yo
 ```
 
 **Pattern 4: Partial Success Semantics**
+
 ```markdown
 **UNKNOWN: Batch query partial failure handling**
+
 - **Location:** `views/bulk_query.py:78-102`
 - **What we know:** Some items can succeed while others fail
 - **Why ambiguous:** Unclear if client gets partial results or error
@@ -85,8 +95,10 @@ When you can't infer business logic from code, it's critical to document what yo
 ```
 
 **Pattern 5: Race Conditions**
+
 ```markdown
 **UNKNOWN: Credit deduction before validation**
+
 - **Location:** `views/geolocation.py:167 (deduct), 182 (validate)`
 - **What we know:** Credits deducted BEFORE validation completes
 - **Why ambiguous:** Could cause temporary negative balance
@@ -97,22 +109,26 @@ When you can't infer business logic from code, it's critical to document what yo
 ### Ambiguity Resolution Workflow
 
 **Step 1: Document First**
+
 - Add to Section 10 immediately
 - Don't delay the entire analysis for one ambiguity
 - Be specific about what you don't know
 
 **Step 2: Categorize by Impact**
+
 - **HIGH:** Affects billing, security, data integrity → escalate to team
 - **MEDIUM:** Affects UX, performance → add to backlog
 - **LOW:** Nice-to-know → document for future reference
 
 **Step 3: Attempt Resolution**
+
 - **Code inspection:** Look for comments, tests, or related code
 - **Config files:** Check settings.py, environment variables
 - **Tests:** Read test files for behavioral clues
 - **Domain experts:** Ask product, senior devs, or support team
 
 **Step 4: Update Documentation**
+
 - When resolved, remove from Section 10
 - Add to appropriate section (1-9) with explanation
 - Note how it was resolved (e.g., "RESOLVED: Team confirmed X")
@@ -120,6 +136,7 @@ When you can't infer business logic from code, it's critical to document what yo
 ### When to Admit "I Don't Know"
 
 **Always admit uncertainty when:**
+
 - Code has multiple conflicting behaviors
 - No tests exist for the path
 - Comments contradict the implementation
@@ -127,6 +144,7 @@ When you can't infer business logic from code, it's critical to document what yo
 - Behavior depends on external state (config, database, external API)
 
 **Better to be honest than wrong:**
+
 - ❌ Bad: "Retries 3 times" (code actually retries indefinitely)
 - ✅ Good: "UNKNOWN: Retry behavior - code loops until success but no max retry documented"
 
@@ -253,8 +271,10 @@ When you can't infer business logic from code, it's critical to document what yo
 **Problem:** Section 4 (Main Flow) describes code structure instead of business flow
 
 ❌ **Bad Example:**
+
 ```markdown
 ## 4. Main Flow
+
 1. View calls serializer.validate()
 2. Serializer calls service.check_quota()
 3. Service returns Quota object
@@ -262,8 +282,10 @@ When you can't infer business logic from code, it's critical to document what yo
 ```
 
 ✅ **Good Example:**
+
 ```markdown
 ## 4. Main Flow
+
 1. Validate request has sufficient quota
 2. Reserve quota for this query
 3. Attempt lookup with middleware provider
@@ -278,14 +300,18 @@ When you can't infer business logic from code, it's critical to document what yo
 **Problem:** Section 7 (Billing/Credit Impact) is empty or incomplete
 
 ❌ **Bad Example:**
+
 ```markdown
 ## 7. Billing / Credit Impact
+
 Charges credits. See billing docs.
 ```
 
 ✅ **Good Example:**
+
 ```markdown
 ## 7. Billing / Credit Impact
+
 - **Initial charge:** Full cost (10 credits) deducted when query is created
 - **Refund on failure:** 100% refunded if provider returns error
 - **No refund:** If query cancelled after PROCESSING starts
@@ -300,14 +326,18 @@ Charges credits. See billing docs.
 **Problem:** Claims made without code location evidence
 
 ❌ **Bad Example:**
+
 ```markdown
 ## 5. Decision Rules
+
 - If quota exceeded → reject
 ```
 
 ✅ **Good Example:**
+
 ```markdown
 ## 5. Decision Rules
+
 - If quota exceeded → reject with HTTP 403 "QUOTA_EXCEEDED"
   - Code: `services/quota.py:89` (QuotaCheckService.can_perform_action)
   - Trigger: `user.quota_remaining < query_cost`
@@ -320,13 +350,16 @@ Charges credits. See billing docs.
 **Problem:** Section 6 (State Transitions) missing states or diagram
 
 ❌ **Bad Example:**
+
 ```markdown
 ## 6. State Transitions
+
 PENDING → PROCESSING → COMPLETED
 ```
 
 ✅ **Good Example:**
-```markdown
+
+````markdown
 ## 6. State Transitions
 
 ```mermaid
@@ -339,8 +372,10 @@ stateDiagram-v2
     FAILED --> PENDING: User retries (up to 3 times)
     COMPLETED --> ARCHIVED: After 90 days
 ```
+````
 
 **State meanings:**
+
 - **PENDING:** Initial state, quota reserved, awaiting provider
 - **PROCESSING:** Provider is actively locating subscriber
 - **PAUSED:** User temporarily suspended (credits not refunded)
@@ -349,7 +384,8 @@ stateDiagram-v2
 - **ARCHIVED:** Historical record, no longer accessible (90+ days old)
 
 **Missing transition:** Code has PAUSED → PROCESSING but diagram doesn't show it
-```
+
+````
 
 **Fix:**
 1. Read ALL state enum values
@@ -367,28 +403,33 @@ stateDiagram-v2
 ## 8. Exceptions / Edge Cases
 - Invalid input → HTTP 400
 - Insufficient credits → HTTP 403
-```
+````
 
 ✅ **Good Example:**
+
 ```markdown
 ## 8. Exceptions / Edge Cases
 
 **Input Validation Errors:**
+
 - Missing MSISDN/IMSI → HTTP 400 "IDENTIFIER_REQUIRED"
 - No methodology selected → HTTP 400 "METHODOLOGY_REQUIRED"
 - Invalid date range (end before start) → HTTP 400 "INVALID_DATE_RANGE"
 
 **Quota/Credit Errors:**
+
 - Quota exceeded → HTTP 403 "QUOTA_EXCEEDED"
 - Insufficient credits → HTTP 403 "INSUFFICIENT_CREDITS"
 - Credit service unavailable → HTTP 503 (query queued for retry)
 
 **Provider Errors:**
+
 - Provider timeout → fallback to secondary provider
 - Both providers fail → mark as FAILED, refund 50% credits
 - Provider returns partial data → mark COMPLETED with PARTIAL flag
 
 **Edge Cases:**
+
 - **Empty result:** Provider returns "subscriber not found" → mark COMPLETED with empty coordinates
 - **Stale identifier:** MSISDN no longer active → mark FAILED with "TARGET_NOT_ACTIVE"
 - **Concurrent requests:** Same user submits 10 identical queries → all processed (no deduplication)
@@ -396,6 +437,7 @@ stateDiagram-v2
 ```
 
 **Fix:**
+
 1. Read ALL exception handlers (except blocks)
 2. Look for conditional branches (if/elif/else)
 3. Check validation logic (serializers, validators)
@@ -409,11 +451,13 @@ stateDiagram-v2
 ### When to Review
 
 ✅ **Required Reviews:**
+
 - Critical BL docs (billing, state machines, API contracts)
 - First analysis of a major feature
 - Before marking documentation as "CURRENT" status
 
 ✅ **Optional Reviews:**
+
 - Minor endpoint documentation
 - Model lifecycle documentation
 - Routine workflow documentation
@@ -421,6 +465,7 @@ stateDiagram-v2
 ### Review Checklist
 
 **Completeness:**
+
 - [ ] All 11 sections present and non-empty
 - [ ] Line numbers included for all claims
 - [ ] Billing/credit logic explicit (no "TODO")
@@ -428,6 +473,7 @@ stateDiagram-v2
 - [ ] Ambiguities documented where appropriate
 
 **Quality:**
+
 - [ ] Business language used (not "calls function X")
 - [ ] Domain terminology from expertise.yaml
 - [ ] No technical implementation details in business sections
@@ -435,12 +481,14 @@ stateDiagram-v2
 - [ ] Edge cases identified, not just happy path
 
 **Accuracy:**
+
 - [ ] Verified against actual code (not just docstrings)
 - [ ] No contradictions within the document
 - [ ] Related BL docs linked appropriately
 - [ ] Glossary updated if new terms discovered
 
 **Clarity:**
+
 - [ ] New developer could understand from this doc alone
 - [ ] Acronyms explained or linked to glossary
 - [ ] Examples provided for complex flows

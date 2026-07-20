@@ -1,6 +1,6 @@
 # Business Logic Reverse Engineering
 
-*Generated from code analysis on 2026-07-20 via `arh-business-logic-extractor`*
+_Generated from code analysis on 2026-07-20 via `arh-business-logic-extractor`_
 
 ## 1. Business Purpose
 
@@ -29,7 +29,7 @@ duties is enforced: whoever requests a waiver cannot be the one who approves it.
 ## 3. Preconditions
 
 - A claim package is identified by `claimPackageId`; commands against a nonexistent id fail with
-  `claim_not_found` (except `CreateClaimPackage`, which requires the *opposite* — no existing state).
+  `claim_not_found` (except `CreateClaimPackage`, which requires the _opposite_ — no existing state).
 - Every command carries an actor id and an event timestamp; a non-finite date fails validation
   (`invalid_event_time`) before any business rule is evaluated.
 - Requirement-scoped commands (`LinkClaimEvidence`, `EvaluateClaimRequirement`,
@@ -71,31 +71,31 @@ duties is enforced: whoever requests a waiver cannot be the one who approves it.
 
 ## 5. Decision Rules
 
-| Condition | Action |
-|-----------|--------|
-| `CreateClaimPackage` on an id that already has state | Reject: `claim_already_exists` |
-| Reference or description blank/whitespace-only | Reject: `invalid_reference` / `invalid_description` |
-| `AddClaimRequirement` when `lifecycle !== Open` | Reject: `claim_not_open` |
-| `LinkClaimEvidence` / `EvaluateClaimRequirement` / waiver commands on unknown `requirementId` | Reject: `requirement_not_found` |
-| `EvaluateClaimRequirement` when requirement status isn't `Unsatisfied` | Reject: `requirement_not_unsatisfied` |
-| `RequestClaimRequirementWaiver` when requirement isn't `Unsatisfied` | Reject: `requirement_not_unsatisfied` |
-| `RequestClaimRequirementWaiver` when a waiver is already pending (`waiver !== null && approvedBy === null`) | Reject: `waiver_already_pending` |
-| `ApproveClaimRequirementWaiver` when no waiver exists, or it's already approved | Reject: `no_pending_waiver` |
-| `ApproveClaimRequirementWaiver` where `approvedBy === waiver.requestedBy` | Reject: `actor_is_waiver_requester` (segregation of duties, `BOM-CLAIM-003`) |
-| `VerifyClaimPackage` when `readiness !== ReadyForQSReview` | Reject: `claim_not_ready_for_qs_review` |
-| `RecordClaimSubmission` when `lifecycle !== Open` | Reject: `claim_not_open` |
-| `RecordClaimSubmission` when `readiness !== QSVerified` | Reject: `claim_not_qs_verified` |
-| `CloseClaimPackage` when `lifecycle !== Submitted` | Reject: `claim_not_submitted` |
-| `InvalidateClaimEvidence` when requirement isn't `Satisfied` or `Waived` | Reject: `requirement_not_qualifying` |
-| `ReopenClaimPackageForCorrection` when `lifecycle` isn't `Submitted` or `Closed` | Reject: `claim_not_correctable` |
-| `CancelClaimPackage` when `lifecycle !== Open` | Reject: `claim_not_cancellable` |
+| Condition                                                                                                   | Action                                                                       |
+| ----------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `CreateClaimPackage` on an id that already has state                                                        | Reject: `claim_already_exists`                                               |
+| Reference or description blank/whitespace-only                                                              | Reject: `invalid_reference` / `invalid_description`                          |
+| `AddClaimRequirement` when `lifecycle !== Open`                                                             | Reject: `claim_not_open`                                                     |
+| `LinkClaimEvidence` / `EvaluateClaimRequirement` / waiver commands on unknown `requirementId`               | Reject: `requirement_not_found`                                              |
+| `EvaluateClaimRequirement` when requirement status isn't `Unsatisfied`                                      | Reject: `requirement_not_unsatisfied`                                        |
+| `RequestClaimRequirementWaiver` when requirement isn't `Unsatisfied`                                        | Reject: `requirement_not_unsatisfied`                                        |
+| `RequestClaimRequirementWaiver` when a waiver is already pending (`waiver !== null && approvedBy === null`) | Reject: `waiver_already_pending`                                             |
+| `ApproveClaimRequirementWaiver` when no waiver exists, or it's already approved                             | Reject: `no_pending_waiver`                                                  |
+| `ApproveClaimRequirementWaiver` where `approvedBy === waiver.requestedBy`                                   | Reject: `actor_is_waiver_requester` (segregation of duties, `BOM-CLAIM-003`) |
+| `VerifyClaimPackage` when `readiness !== ReadyForQSReview`                                                  | Reject: `claim_not_ready_for_qs_review`                                      |
+| `RecordClaimSubmission` when `lifecycle !== Open`                                                           | Reject: `claim_not_open`                                                     |
+| `RecordClaimSubmission` when `readiness !== QSVerified`                                                     | Reject: `claim_not_qs_verified`                                              |
+| `CloseClaimPackage` when `lifecycle !== Submitted`                                                          | Reject: `claim_not_submitted`                                                |
+| `InvalidateClaimEvidence` when requirement isn't `Satisfied` or `Waived`                                    | Reject: `requirement_not_qualifying`                                         |
+| `ReopenClaimPackageForCorrection` when `lifecycle` isn't `Submitted` or `Closed`                            | Reject: `claim_not_correctable`                                              |
+| `CancelClaimPackage` when `lifecycle !== Open`                                                              | Reject: `claim_not_cancellable`                                              |
 
 ---
 
 ## 6. State Transitions
 
 Two independent state machines evolve together: **lifecycle** (the package's overall status) and
-**readiness** (whether requirements currently qualify for QS review). Readiness is *derived* by
+**readiness** (whether requirements currently qualify for QS review). Readiness is _derived_ by
 `deriveReadiness`, not set by any command directly.
 
 ```mermaid
@@ -155,12 +155,14 @@ visible in this module).
 ## 9. Data Written / Read
 
 **Written** (all via domain events, applied through `evolve`):
+
 - Claim `facts` (immutable after creation): id, org, project, reference, description, creator, timestamp.
 - `lifecycle` and `readiness` (each independently derived/mutated per the rules above).
 - Per-requirement: `status`, `evidence`, `waiver`, `gapNote`.
 - `qsVerification` record (verifier, timestamp, notes) — cleared on reopen.
 
 **Read:**
+
 - Current `ClaimState` (rebuilt by replaying events through `evolve`, standard event-sourcing
   read model) before every `decide()` call.
 
@@ -199,4 +201,4 @@ visible in this module).
 
 ---
 
-*End of analysis*
+_End of analysis_

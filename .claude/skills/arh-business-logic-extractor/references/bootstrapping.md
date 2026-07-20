@@ -1,6 +1,6 @@
 # Bootstrapping Business Logic Documentation
 
-*Last updated: 2026-03-15*
+_Last updated: 2026-03-15_
 
 ## Overview
 
@@ -11,6 +11,7 @@ When starting with an undocumented or partially documented codebase, use this sy
 **Goal:** Identify all entry points and business capabilities. Prefer patterns from `.arh-bl-config.yaml` → `entry_points` when present.
 
 **1. Discover API Endpoints:**
+
 ```bash
 # Examples (adapt to your project's paths and patterns):
 # ViewSets / class-based views
@@ -20,6 +21,7 @@ grep -r "@api_view\|@router\|@app\.post" backend/ --include="*.py"
 ```
 
 **2. Discover Models/Entities:**
+
 ```bash
 # ORM models / schemas
 grep -r "class.*Model\|class.*Schema" backend/ --include="*.py"
@@ -27,6 +29,7 @@ find backend/ -name "*model*.py" -o -name "*schema*.py"
 ```
 
 **3. Discover Workflows/Background Tasks:**
+
 ```bash
 # Task decorators / job handlers
 grep -r "@shared_task\|@task\|@celery" backend/ --include="*.py"
@@ -35,6 +38,7 @@ find backend/ -path "*/management/commands/*.py"
 ```
 
 **4. Discover Billing/Charging Logic:**
+
 ```bash
 # Charge / refund / credit / quota
 grep -r "charge\|refund\|credit\|quota" backend/ --include="*.py" -l
@@ -47,18 +51,21 @@ grep -r "charge\|refund\|credit\|quota" backend/ --include="*.py" -l
 Prioritize based on business impact and complexity:
 
 **Tier 1 (Critical Path - Do First):**
+
 - User-facing API endpoints (authentication, CRUD operations)
 - Billing/credit operations (money-related, highest risk)
 - Core domain models (your main entities)
 - Background workflows that modify data
 
 **Tier 2 (Important - Do Second):**
+
 - Admin/management operations
 - Scheduled tasks and periodic jobs
 - Integration with external services
 - Notification/alerting logic
 
 **Tier 3 (Nice to Have - Do Last):**
+
 - Utility endpoints
 - Read-only views
 - Legacy/deprecated code paths
@@ -66,6 +73,7 @@ Prioritize based on business impact and complexity:
 ### Phase 3: Initial Documentation (First Pass)
 
 **Create the state-based directory structure:** Use `bl_output.root` from `.arh-bl-config.yaml` if set; otherwise `business_logic`.
+
 ```bash
 # Example: default root business_logic (replace ROOT with your bl_output.root if different)
 ROOT="${BL_ROOT:-business_logic}"
@@ -76,6 +84,7 @@ done
 ```
 
 **Create initial index and glossary for current BL:**
+
 ```bash
 # business_logic/current/index.md
 cat > business_logic/current/index.md << 'EOF'
@@ -114,6 +123,7 @@ EOF
 ```
 
 **Create placeholder indexes for other states:**
+
 ```bash
 # business_logic/proposal/index.md
 cat > business_logic/proposal/index.md << 'EOF'
@@ -176,6 +186,7 @@ EOF
 ### Phase 4: Batch Processing (Systematic Documentation)
 
 **For Endpoints (Endpoint-to-BL):**
+
 ```bash
 # Get list of all ViewSets
 grep -r "class.*ViewSet" backend/apps/*/api/views.py | cut -d: -f1 | sort -u
@@ -187,6 +198,7 @@ grep -r "class.*ViewSet" backend/apps/*/api/views.py | cut -d: -f1 | sort -u
 ```
 
 **For Models (Model-to-BL):**
+
 ```bash
 # Get all model classes
 grep -rh "^class.*models\.Model" backend/apps/*/models.py | grep -o "class [A-Z][a-zA-Z]*" | sort -u
@@ -199,6 +211,7 @@ grep -rh "^class.*models\.Model" backend/apps/*/models.py | grep -o "class [A-Z]
 ```
 
 **For Workflows (Workflow-to-BL):**
+
 ```bash
 # Get all Celery tasks
 grep -rh "@shared_task\|@task" backend/apps/ --include="*.py" | grep "def " | grep -o "def [a-z_]*" | sort -u
@@ -211,6 +224,7 @@ grep -rh "@shared_task\|@task" backend/apps/ --include="*.py" | grep "def " | gr
 ```
 
 **For Billing (Billing-to-BL):**
+
 ```bash
 # Find all credit operations
 grep -r "CreditService\." backend/apps/ --include="*.py" -A 2 | grep -E "(reserve|consume|release|adjust)_credits"
@@ -232,8 +246,10 @@ After first pass, add bidirectional links:
 4. **State Machines:** Link model state transitions to the endpoints/workflows that cause them
 
 **Update the index:**
+
 ```markdown
 ## Endpoints
+
 - [Order Creation](endpoints/order-creation.md)
   - Code: `backend/api/views.py:145` (example path)
   - Related: [Order Lifecycle](../models/order-lifecycle.md), [Charging](../billing/charging-rules.md)
@@ -255,6 +271,7 @@ Focus on: core user-facing flows and billing (if any) first.
 ```
 
 **This will:**
+
 - Scan project code roots (from config or e.g. `backend/`, `src/`) for entry points
 - Create the `[bl_root]/current/` structure
 - Generate 10-15 initial analyses for critical path
@@ -268,6 +285,7 @@ Focus on: core user-facing flows and billing (if any) first.
 **Comparison Use Cases:**
 
 **1. Proposal vs Current (Gap Analysis)**
+
 ```bash
 # Compare proposed BL to current BL
 Compare:
@@ -281,6 +299,7 @@ Compare:
 ```
 
 **Example:**
+
 ```markdown
 ## Gap Analysis: New Feature Proposal
 
@@ -288,24 +307,28 @@ Compare:
 **Current:** [bl_root]/current/endpoints/core-feature.md
 
 **What Changes:**
+
 - NEW: Real-time geolocation tracking
 - NEW: WebSocket-based updates
 - MODIFIED: Credit charging (now per-minute instead of per-query)
 - REMOVED: Fallback to secondary provider
 
 **Business Impact:**
+
 - Users get real-time results (better UX)
 - Credit costs may increase (per-minute billing)
 - No fallback increases failure risk
 - Need to update client to use WebSocket
 
 **Gap Analysis:**
+
 - Proposal doesn't address error handling for WebSocket failures
 - Current BL doesn't document how to handle long-running queries
 - Migration path unclear (how do existing queries transition?)
 ```
 
 **2. Under Development vs Current (Change Impact)**
+
 ```bash
 # Compare under_development BL to current BL
 Compare:
@@ -319,6 +342,7 @@ Compare:
 ```
 
 **3. Historical vs Current (Evolution Tracking)**
+
 ```bash
 # Compare historical BL to current BL
 Compare:
@@ -332,6 +356,7 @@ Compare:
 ```
 
 **4. Migration Planning**
+
 ```bash
 # When implementing a proposal:
 1. Copy proposal → under_development when implementation starts
@@ -343,6 +368,7 @@ Compare:
 **Comparison Workflow:**
 
 **Step 1: Identify Files to Compare**
+
 ```bash
 # Find BL docs in different states for the same feature
 find [bl_root]/proposal -name "*<feature>*"
@@ -352,6 +378,7 @@ find [bl_root]/historical -name "*<feature>*"
 ```
 
 **Step 2: Read Both Documents**
+
 ```bash
 # Read proposal BL
 cat [bl_root]/proposal/endpoints/feature-v2.md
@@ -362,6 +389,7 @@ cat [bl_root]/current/endpoints/core-feature.md
 
 **Step 3: Section-by-Section Comparison**
 Compare each of the 11 sections:
+
 - **Business Purpose:** Did the purpose change?
 - **Actors:** Are new actors involved?
 - **Preconditions:** Are new preconditions added?
@@ -374,6 +402,7 @@ Compare each of the 11 sections:
 
 **Step 4: Document the Differences**
 Create a comparison document:
+
 ```markdown
 # BL Comparison: [Feature Name]
 
@@ -381,16 +410,19 @@ Create a comparison document:
 **Date:** [Comparison date]
 
 ## Summary of Changes
+
 [Brief overview of what changed]
 
 ## Section-by-Section Differences
 
 ### 1. Business Purpose
+
 - **[State 1]:** [Original purpose]
 - **[State 2]:** [New purpose]
 - **Change:** [What changed and why]
 
 ### 2. Decision Rules
+
 - **Added:** [New rules]
 - **Removed:** [Old rules]
 - **Modified:** [Changed rules]
@@ -398,17 +430,20 @@ Create a comparison document:
 ### ... [Continue for all relevant sections]
 
 ## Business Impact Analysis
+
 - **Breaking Changes:** [List]
 - **User Impact:** [Describe]
 - **Data Migration:** [Needed?]
 - **Documentation Updates:** [What needs updating]
 
 ## Recommendations
+
 - [Actionable recommendations]
 ```
 
 **Step 5: Identify Gaps**
 When comparing proposal vs current:
+
 - **Missing in proposal:** Essential BL from current that proposal doesn't address
 - **Missing in current:** New requirements proposal addresses
 - **Inconsistencies:** Contradictions between states
@@ -417,18 +452,21 @@ When comparing proposal vs current:
 **Use Cases for Comparison:**
 
 **Before Implementation:**
+
 - Review proposal BL for completeness
 - Identify gaps before coding starts
 - Validate business requirements
 - Get stakeholder alignment
 
 **During Implementation:**
+
 - Track implementation progress vs proposal
 - Ensure all changes are implemented
 - Catch scope creep
 - Validate BL matches actual code
 
 **After Implementation:**
+
 - Verify implementation matches proposal
 - Move to current when complete
 - Archive old BL to historical

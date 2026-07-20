@@ -1,6 +1,6 @@
 # Quick Start Guide
 
-*Last updated: 2026-03-15*
+_Last updated: 2026-03-15_
 
 ## Getting Started in 5 Minutes
 
