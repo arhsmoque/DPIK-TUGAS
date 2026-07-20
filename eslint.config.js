@@ -22,6 +22,16 @@ export default [
     }
   },
   {
+    // Cloudflare Workers runtime globals -- this file runs under workerd, not Node.
+    files: ["apps/jobs/src/worker.mjs"],
+    languageOptions: {
+      globals: {
+        Response: "readonly",
+        Request: "readonly"
+      }
+    }
+  },
+  {
     files: ["apps/**/*.{ts,tsx}", "src/**/*.{ts,tsx}"],
     languageOptions: {
       parser: tsParser,
