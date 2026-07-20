@@ -33,6 +33,7 @@ export type ClaimPackageId = Brand<string, "ClaimPackageId">;
 export type ClaimRequirementId = Brand<string, "ClaimRequirementId">;
 export type ConfigurationVersionId = Brand<string, "ConfigurationVersionId">;
 export type FormalSubmissionProcessId = Brand<string, "FormalSubmissionProcessId">;
+export type GovernanceGateId = Brand<string, "GovernanceGateId">;
 
 export type CommandId = Brand<string, "CommandId">;
 export type DomainEventId = Brand<string, "DomainEventId">;

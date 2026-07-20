@@ -22,8 +22,8 @@ Internal work assignment and accountability system for DPI Konsult Sdn Bhd. This
 - **Runtime:** Non-production startup reference slice is executable locally against the shared Supabase development project.
 - **Approval:** Operational approval is unsigned; pilot and production remain blocked.
 - **Next safe action:** Prove authenticated two-user behavior, negative RLS cases, concurrency, idempotency, recovery, and browser smoke before expanding workflow.
-- **Owned modules:** `claim`, `deliverable`, `dispatch`, `identity-access`, `project-context`, `receipt-evidence`, `submission`, `work-thread`
-- **Tracked migrations:** 11; latest `20260719006000_administration.sql`
+- **Owned modules:** `claim`, `deliverable`, `dispatch`, `governance-gate`, `identity-access`, `project-context`, `receipt-evidence`, `submission`, `work-thread`
+- **Tracked migrations:** 12; latest `20260720000000_governance_gate.sql`
 
 ## Common commands
 

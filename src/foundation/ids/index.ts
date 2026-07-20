@@ -17,6 +17,7 @@ export {
   type ClaimRequirementId,
   type ConfigurationVersionId,
   type FormalSubmissionProcessId,
+  type GovernanceGateId,
   type CommandId,
   type DomainEventId,
   type CorrelationId,

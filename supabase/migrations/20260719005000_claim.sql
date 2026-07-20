@@ -228,9 +228,9 @@ declare
   claim_project uuid;
   changed public.claim_requirements%rowtype;
 begin
-  select r.*, c.project_id into requirement, claim_project
-  from public.claim_requirements r join public.claim_packages c on c.id = r.claim_package_id
-  where r.id = target_requirement_id;
+  select * into requirement from public.claim_requirements r where r.id = target_requirement_id;
+  select c.project_id into claim_project
+  from public.claim_packages c where c.id = requirement.claim_package_id;
   if requirement.id is null then
     raise exception using errcode = 'P0002', message = 'requirement_not_found';
   end if;
@@ -330,9 +330,9 @@ declare
   claim_project uuid;
   changed public.claim_requirements%rowtype;
 begin
-  select r.*, c.project_id into requirement, claim_project
-  from public.claim_requirements r join public.claim_packages c on c.id = r.claim_package_id
-  where r.id = target_requirement_id;
+  select * into requirement from public.claim_requirements r where r.id = target_requirement_id;
+  select c.project_id into claim_project
+  from public.claim_packages c where c.id = requirement.claim_package_id;
   if requirement.id is null then
     raise exception using errcode = 'P0002', message = 'requirement_not_found';
   end if;
