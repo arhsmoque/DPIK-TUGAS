@@ -376,6 +376,14 @@ article small {
   font-size: 13px;
   margin-top: 8px;
 }
+.deferred-gate-banner {
+  margin: 12px 0;
+  border-left-width: 6px;
+  align-items: flex-start;
+}
+.deferred-gate-banner button {
+  align-self: flex-start;
+}
 .negotiation-banner {
   padding: 10px 14px;
   border-left: 4px solid var(--accent-gold);

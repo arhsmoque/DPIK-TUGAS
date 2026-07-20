@@ -7,8 +7,11 @@ import { DispatchPanel } from "./DispatchPanel";
 import { ReceiptEvidencePanel } from "./ReceiptEvidencePanel";
 import { ClaimsPanel } from "./ClaimsPanel";
 import { AdminPanel } from "./AdminPanel";
+import { GovernanceGatesPanel, type GateRow } from "./GovernanceGatesPanel";
+import { callRpc } from "./rpc";
 
-type NavTab = "myWork" | "submissions" | "dispatch" | "receiptEvidence" | "claims" | "admin";
+type NavTab =
+  "myWork" | "submissions" | "dispatch" | "receiptEvidence" | "claims" | "governance" | "admin";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
@@ -37,6 +40,7 @@ export function App(): JSX.Element {
   const [loading, setLoading] = useState(true);
   const [context, setContext] = useState<StartupContext | null>(null);
   const [work, setWork] = useState<WorkThreadRow[]>([]);
+  const [deferredGates, setDeferredGates] = useState<GateRow[]>([]);
   const [activeTab, setActiveTab] = useState<NavTab>("myWork");
 
   // Theme dark mode state
@@ -85,8 +89,38 @@ export function App(): JSX.Element {
       .order("created_at", { ascending: false });
     if (workResult.error) setError(workResult.error.message);
     else setWork((workResult.data ?? []) as WorkThreadRow[]);
+
+    // Fetched at App level (not only inside GovernanceGatesPanel) so the
+    // deferred-gate warning stays visible regardless of active tab -- the
+    // operator's absolute-veto override must never require a tab switch to
+    // see or act on.
+    const gatesResult = await supabase
+      .from("governance_gates")
+      .select(
+        "id,gate_type,lifecycle,deferred_reason,deferred_by,deferred_at,approved_by,approved_at,version"
+      )
+      .eq("project_id", projectId)
+      .eq("lifecycle", "Deferred");
+    if (gatesResult.error) setError(gatesResult.error.message);
+    else setDeferredGates((gatesResult.data ?? []) as GateRow[]);
+
     setLoading(false);
   }, []);
+
+  async function reconsiderFromBanner(gate: GateRow): Promise<void> {
+    if (!supabase) return;
+    const result = await callRpc(
+      supabase,
+      "reconsider_gate_deferral",
+      { target_gate_id: gate.id, expected_record_version: gate.version },
+      "Deferral reconsidered — gate is Open again."
+    );
+    if (!result.ok) setError(result.message);
+    else {
+      setNotice(result.message);
+      await refresh();
+    }
+  }
 
   useEffect(() => {
     if (!supabase) {
@@ -240,6 +274,7 @@ export function App(): JSX.Element {
               ["dispatch", "Dispatch"],
               ["receiptEvidence", "Receipt Evidence"],
               ["claims", "Claims"],
+              ["governance", "Governance"],
               ["admin", "Admin"]
             ] as [NavTab, string][]
           ).map(([tab, label]) => (
@@ -306,6 +341,21 @@ export function App(): JSX.Element {
             Refresh
           </button>
         </section>
+        {deferredGates.map((gate) => (
+          <div key={gate.id} className="blocker-banner deferred-gate-banner">
+            <strong>Deferred at your own risk: {gate.gate_type}</strong>
+            <span>{gate.deferred_reason}</span>
+            <small>
+              by {gate.deferred_by} at{" "}
+              {gate.deferred_at ? new Date(gate.deferred_at).toLocaleString() : ""}
+            </small>
+            {permissions.has("governance.override_gate") && (
+              <button className="secondary" onClick={() => void reconsiderFromBanner(gate)}>
+                Reconsider
+              </button>
+            )}
+          </div>
+        ))}
         {error && <p className="error">{error}</p>}
         {notice && <p className="notice">{notice}</p>}
 
@@ -418,6 +468,15 @@ export function App(): JSX.Element {
         )}
         {supabase && project && activeTab === "claims" && (
           <ClaimsPanel
+            supabase={supabase}
+            projectId={project.id}
+            permissions={permissions}
+            onError={setError}
+            onNotice={setNotice}
+          />
+        )}
+        {supabase && project && activeTab === "governance" && (
+          <GovernanceGatesPanel
             supabase={supabase}
             projectId={project.id}
             permissions={permissions}
