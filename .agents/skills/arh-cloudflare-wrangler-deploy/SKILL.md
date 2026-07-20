@@ -96,7 +96,7 @@ adjacent systems the deploy depends on:
 
 - **Database migrations** (Supabase, or any hosted DB): if a workflow already has the DB's
   access-token secrets available but no CI step applies migrations, that is a real remaining local
-  dependency even though the *Cloudflare* half is fully remote. See
+  dependency even though the _Cloudflare_ half is fully remote. See
   [references/supabase-ci-migration.md](references/supabase-ci-migration.md) for the pattern:
   `supabase db push --linked` in CI using an access-token secret, with no local `supabase link` step
   required.

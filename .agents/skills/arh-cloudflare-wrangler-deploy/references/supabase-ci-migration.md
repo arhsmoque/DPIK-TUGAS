@@ -52,7 +52,7 @@ jobs:
 ## Why this is safe to add without weakening existing local-run guards
 
 A repo's own operator-facing skill may require a local link artifact (e.g.
-`supabase/.temp/project-ref`) to exist before allowing an *agent* to run migration-adjacent work
+`supabase/.temp/project-ref`) to exist before allowing an _agent_ to run migration-adjacent work
 locally -- that guard exists to stop an agent from silently drifting a shared dev database. It does
 not conflict with a CI workflow doing the equivalent link+push non-interactively inside an isolated
 GitHub Actions runner: the runner links fresh every run and discards state after, so there is no
@@ -62,6 +62,6 @@ agent-run local work, the CI workflow for the actual merge-to-main migration pat
 ## What this does not replace
 
 Migration review still happens in the PR that adds the migration file, same as any other code
-change -- this workflow only removes the *local execution* dependency for applying an already
+change -- this workflow only removes the _local execution_ dependency for applying an already
 reviewed, already merged migration. It is not a substitute for reviewing SQL for transactionality,
 RLS correctness, or rollback consequences before merge.

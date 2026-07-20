@@ -23,7 +23,7 @@ wrapping a Node-only script in a Worker shim that will fail at deploy or at firs
 export default {
   async scheduled(event, env, ctx) {
     ctx.waitUntil(runOncePass(env));
-  },
+  }
 };
 
 async function runOncePass(env) {

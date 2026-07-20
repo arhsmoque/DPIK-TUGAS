@@ -22,7 +22,7 @@ globals actually used -- do not widen the whole repo's lint globals just to unbl
 }
 ```
 
-Do this *before* first push, as part of writing the Worker adapter -- see
+Do this _before_ first push, as part of writing the Worker adapter -- see
 [worker-from-script.md](worker-from-script.md) step ordering.
 
 ## 2. `wrangler deploy --dry-run` passing does not mean CI will pass
@@ -56,7 +56,7 @@ part of an unrelated deploy PR.
 
 After the first push touching a new unit, check `gh run list` to confirm only the expected
 workflows fired (the new unit's deploy + the repo's general `ci`), and that unrelated
-path-filtered workflows (another unit's deploy, a migration workflow) did *not* fire. A path filter
+path-filtered workflows (another unit's deploy, a migration workflow) did _not_ fire. A path filter
 typo (wrong glob, missing unit's actual path) silently either over-triggers or never triggers --
 both are easy to miss by reading the YAML alone.
 

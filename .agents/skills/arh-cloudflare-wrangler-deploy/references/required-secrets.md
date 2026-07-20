@@ -6,10 +6,10 @@ value pasted into a workflow file.
 
 ## Every unit (Pages or Worker)
 
-| Secret | Purpose |
-| --- | --- |
-| `CLOUDFLARE_API_TOKEN` | Scoped API token with Pages/Workers edit permission for the target account. Create at the Cloudflare dashboard under My Profile > API Tokens; use a scoped token, not the Global API Key. |
-| `CLOUDFLARE_ACCOUNT_ID` | The Cloudflare account ID the project/Worker belongs to. Not secret in the sensitive sense, but kept alongside the token for convenience. |
+| Secret                  | Purpose                                                                                                                                                                                   |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CLOUDFLARE_API_TOKEN`  | Scoped API token with Pages/Workers edit permission for the target account. Create at the Cloudflare dashboard under My Profile > API Tokens; use a scoped token, not the Global API Key. |
+| `CLOUDFLARE_ACCOUNT_ID` | The Cloudflare account ID the project/Worker belongs to. Not secret in the sensitive sense, but kept alongside the token for convenience.                                                 |
 
 ## Pages app, additionally
 
