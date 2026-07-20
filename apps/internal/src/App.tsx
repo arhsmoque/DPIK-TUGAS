@@ -2,6 +2,13 @@ import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react
 import { createClient, type Session } from "@supabase/supabase-js";
 import "./app.css";
 import { WorkThreadActions, type WorkThreadRow } from "./WorkThreadActions";
+import { SubmissionsPanel } from "./SubmissionsPanel";
+import { DispatchPanel } from "./DispatchPanel";
+import { ReceiptEvidencePanel } from "./ReceiptEvidencePanel";
+import { ClaimsPanel } from "./ClaimsPanel";
+import { AdminPanel } from "./AdminPanel";
+
+type NavTab = "myWork" | "submissions" | "dispatch" | "receiptEvidence" | "claims" | "admin";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
@@ -30,6 +37,7 @@ export function App(): JSX.Element {
   const [loading, setLoading] = useState(true);
   const [context, setContext] = useState<StartupContext | null>(null);
   const [work, setWork] = useState<WorkThreadRow[]>([]);
+  const [activeTab, setActiveTab] = useState<NavTab>("myWork");
 
   // Theme dark mode state
   const [darkMode, setDarkMode] = useState<boolean>(() => {
@@ -225,9 +233,25 @@ export function App(): JSX.Element {
         <div className="mark">DPIK</div>
         <h1>TUGAS</h1>
         <nav>
-          <span className="active">My Work</span>
-          <span>Project context</span>
-          <span>System health</span>
+          {(
+            [
+              ["myWork", "My Work"],
+              ["submissions", "Submissions"],
+              ["dispatch", "Dispatch"],
+              ["receiptEvidence", "Receipt Evidence"],
+              ["claims", "Claims"],
+              ["admin", "Admin"]
+            ] as [NavTab, string][]
+          ).map(([tab, label]) => (
+            <span
+              key={tab}
+              className={activeTab === tab ? "active" : ""}
+              onClick={() => setActiveTab(tab)}
+              style={{ cursor: "pointer" }}
+            >
+              {label}
+            </span>
+          ))}
         </nav>
         <button className="secondary" onClick={() => void supabase?.auth.signOut()}>
           Sign out
@@ -284,81 +308,132 @@ export function App(): JSX.Element {
         </section>
         {error && <p className="error">{error}</p>}
         {notice && <p className="notice">{notice}</p>}
-        {permissions.has("work.create") && (
-          <section className="panel">
-            <h3>Create Work Thread</h3>
-            <form className="create-form" onSubmit={(event) => void createWork(event)}>
-              <label>
-                Title
-                <input name="title" required />
-              </label>
-              <label>
-                Expected outcome
-                <input name="outcome" required />
-              </label>
-              <label>
-                Source reference
-                <input name="source" required />
-              </label>
-              <button type="submit">Create</button>
-            </form>
-          </section>
+
+        {activeTab === "myWork" && (
+          <>
+            {permissions.has("work.create") && (
+              <section className="panel">
+                <h3>Create Work Thread</h3>
+                <form className="create-form" onSubmit={(event) => void createWork(event)}>
+                  <label>
+                    Title
+                    <input name="title" required />
+                  </label>
+                  <label>
+                    Expected outcome
+                    <input name="outcome" required />
+                  </label>
+                  <label>
+                    Source reference
+                    <input name="source" required />
+                  </label>
+                  <button type="submit">Create</button>
+                </form>
+              </section>
+            )}
+            <section className="panel">
+              <h3>My Work</h3>
+              {loading ? (
+                <p>Loading current state…</p>
+              ) : work.length === 0 ? (
+                <p>No Work Threads yet.</p>
+              ) : (
+                <div className="work-list">
+                  {work.map((item) => (
+                    <article key={item.id}>
+                      <div>
+                        <span className="status-pill" data-status={item.lifecycle}>
+                          {item.lifecycle}
+                        </span>
+                        <h4>{item.title}</h4>
+                        <p>{item.expected_outcome}</p>
+                        <small>
+                          {item.source_reference}
+                          {item.due_at ? ` · due ${new Date(item.due_at).toLocaleString()}` : ""}
+                        </small>
+                        {item.blocked_outcome && (
+                          <div className="blocker-banner">Blocked: {item.blocked_outcome}</div>
+                        )}
+                        {item.recall_requested_by && (
+                          <div className="negotiation-banner">
+                            Recall requested — {item.recall_reason}
+                          </div>
+                        )}
+                        {item.renegotiation_requested_by && (
+                          <div className="negotiation-banner">
+                            Renegotiation requested — {item.renegotiation_reason}
+                          </div>
+                        )}
+                      </div>
+                      <div className="actions">
+                        {item.lifecycle === "Unassigned" && permissions.has("work.assign") && (
+                          <button onClick={() => void assignWork(item)}>Assign to Smoque</button>
+                        )}
+                        {supabase && (
+                          <WorkThreadActions
+                            item={item}
+                            identityId={context?.identity.id}
+                            permissions={permissions}
+                            supabase={supabase}
+                            onError={setError}
+                            onSuccess={setNotice}
+                            onChanged={refresh}
+                          />
+                        )}
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              )}
+            </section>
+          </>
         )}
-        <section className="panel">
-          <h3>My Work</h3>
-          {loading ? (
-            <p>Loading current state…</p>
-          ) : work.length === 0 ? (
-            <p>No Work Threads yet.</p>
-          ) : (
-            <div className="work-list">
-              {work.map((item) => (
-                <article key={item.id}>
-                  <div>
-                    <span className="status-pill" data-status={item.lifecycle}>
-                      {item.lifecycle}
-                    </span>
-                    <h4>{item.title}</h4>
-                    <p>{item.expected_outcome}</p>
-                    <small>
-                      {item.source_reference}
-                      {item.due_at ? ` · due ${new Date(item.due_at).toLocaleString()}` : ""}
-                    </small>
-                    {item.blocked_outcome && (
-                      <div className="blocker-banner">Blocked: {item.blocked_outcome}</div>
-                    )}
-                    {item.recall_requested_by && (
-                      <div className="negotiation-banner">
-                        Recall requested — {item.recall_reason}
-                      </div>
-                    )}
-                    {item.renegotiation_requested_by && (
-                      <div className="negotiation-banner">
-                        Renegotiation requested — {item.renegotiation_reason}
-                      </div>
-                    )}
-                  </div>
-                  <div className="actions">
-                    {item.lifecycle === "Unassigned" && permissions.has("work.assign") && (
-                      <button onClick={() => void assignWork(item)}>Assign to Smoque</button>
-                    )}
-                    {supabase && (
-                      <WorkThreadActions
-                        item={item}
-                        identityId={context?.identity.id}
-                        permissions={permissions}
-                        supabase={supabase}
-                        onError={setError}
-                        onSuccess={setNotice}
-                        onChanged={refresh}
-                      />
-                    )}
-                  </div>
-                </article>
-              ))}
-            </div>
-          )}
-        </section>
+
+        {supabase && project && activeTab === "submissions" && (
+          <SubmissionsPanel
+            supabase={supabase}
+            projectId={project.id}
+            permissions={permissions}
+            onError={setError}
+            onNotice={setNotice}
+          />
+        )}
+        {supabase && project && activeTab === "dispatch" && (
+          <DispatchPanel
+            supabase={supabase}
+            projectId={project.id}
+            permissions={permissions}
+            onError={setError}
+            onNotice={setNotice}
+          />
+        )}
+        {supabase && project && activeTab === "receiptEvidence" && (
+          <ReceiptEvidencePanel
+            supabase={supabase}
+            projectId={project.id}
+            permissions={permissions}
+            onError={setError}
+            onNotice={setNotice}
+          />
+        )}
+        {supabase && project && activeTab === "claims" && (
+          <ClaimsPanel
+            supabase={supabase}
+            projectId={project.id}
+            permissions={permissions}
+            onError={setError}
+            onNotice={setNotice}
+          />
+        )}
+        {supabase && project && activeTab === "admin" && (
+          <AdminPanel
+            supabase={supabase}
+            projectId={project.id}
+            permissions={permissions}
+            onError={setError}
+            onNotice={setNotice}
+          />
+        )}
       </main>
     </div>
   );
