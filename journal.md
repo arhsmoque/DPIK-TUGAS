@@ -92,3 +92,36 @@ Resume at WP-130 reference-slice qualification. First rotate the exposed managem
   (`7d570f8`, `c9436ee`).
 - Not yet done: Worker runtime secrets are unbound (see above); no hosted proof the Worker's
   scheduled run actually processes a real outbox message end-to-end.
+
+## 2026-07-20 — Operator Health tab, applying the frontend-design-hld method
+
+- Operator asked for the same `arh-frontend-design-hld` skill applied to a sibling repo
+  (`arhsmoque/ARH-FNB-WEBAPP-V2`) to be used here too: an admin console and a "devcon" for backend
+  monitoring. TUGAS already has both halves of that ask in different places -- `AdminPanel.tsx` is
+  the user/role-management admin console (capability grants, system status, defects); what was
+  missing was the devcon equivalent, which `gaps-findings.md` already named: "No single operator
+  dashboard shows app, database, migration, outbox, and projection health at a glance."
+- Situation scan: internal, high-failure-cost, repeated-use tool for admins already inside this app.
+  Archetype: operational console -- the same one the existing top-of-app "Startup health" bar
+  already implies, just not expanded into its own view. Design choice: reuse this app's existing
+  `.panel`/`.badge`/`.health` tokens and DPIK navy/gold palette rather than a new visual system, and
+  add one new `.metric-grid` primitive since none existed yet.
+- Added `operator_health_snapshot()` (`supabase/migrations/20260720010000_operator_health.sql`), a
+  `stable security definer` RPC returning aggregate-only counts (outbox pending + oldest-pending
+  age, open defect reports, deferred governance gates), gated on `administration.manage_users` --
+  the same system-wide-via-any-project simplification `set_system_status` already uses. No new
+  table grants: outbox and defect-report rows stay behind their existing boundary, this only counts
+  them.
+- Deliberately did not attempt database or migration health. That lives in Supabase's own
+  `schema_migrations` catalog and advisory API -- infrastructure-level, not something a browser
+  permission check should be trusted to expose. Recorded as still-open in `gaps-findings.md` rather
+  than silently narrowing the original gap's scope.
+- Added the `Operator Health` tab and `OperatorHealthPanel.tsx`, wired to the RPC, with an explicit
+  permission-denied state (checks the raised `42501` errcode) instead of surfacing a raw Postgres
+  error to non-admins, plus loading/empty states.
+- Verified locally: typecheck, lint, format, `test:architecture`, and all 131 unit tests pass. Could
+  not run a full `npm run build` in this session -- no `ARH_VAULT` file or `VITE_SUPABASE_*` env
+  vars were available here, which is a pre-existing environment limitation, not something this
+  change introduced.
+- Followed `.agents/skills/dpik-tugas-cloud-ops`'s commit-before-apply protocol: the migration file
+  is committed and pushed before being applied to the linked project.

@@ -23,7 +23,7 @@ Status captured 2026-07-18. This file is append-only: close items by adding date
 | Project storage        | Canonical UUID Projects use `public.tugas_projects`              | Transitional name differs from the canonical model; merge/rename needs a deliberate legacy-data plan                   |
 | Legacy security        | Canonical tables deny anonymous access                           | Historical legacy tables/policies, including signal-filter access, have not received a complete security disposition   |
 | Local database tooling | Linked remote CLI operations work                                | Docker Desktop is unavailable, preventing reliable local Supabase stack, shadow diff, dump/pull, and reset proof       |
-| Operator health        | Logs and checks exist                                            | No single operator dashboard shows app, database, migration, outbox, and projection health at a glance                 |
+| Operator health        | `operator_health_snapshot()` RPC + Operator Health tab show outbox-pending, open-defect, and deferred-gate counts app-wide | Database and migration health still are not shown at a glance -- see 2026-07-20 resolution note for why that was deliberately excluded, not just missed |
 | Identity bootstrap     | Named non-production actors are documented                       | Repeatable roster/bootstrap automation and role-grant audit UI are not complete                                        |
 
 ## Confirmed findings
@@ -52,4 +52,10 @@ Append dated closure notes here, including the evidence path and the exact gap c
 ### 2026-07-19 — Exposed management token gap closed by operator directive
 
 - Operator directed this gap be treated as resolved rather than continuing to gate other work on it. No new rotation evidence was generated in this session; this is an authority call, not a technical proof.
+
+### 2026-07-20 — Operator health partially closed: app/outbox/gate signal, not database/migration
+
+- Added `operator_health_snapshot()` (migration `20260720010000_operator_health.sql`) and an `Operator Health` tab (`apps/internal/src/OperatorHealthPanel.tsx`) surfacing outbox-pending count and oldest-pending age, open (unacknowledged) defect-report count, and deferred-governance-gate count, app-wide, gated on the `administration.manage_users` permission (same system-wide-via-any-project simplification `set_system_status` already uses).
+- Deliberately excluded database and migration health: those live in Supabase's own `schema_migrations` catalog and advisory API, which is infrastructure-level and not something an application permission check should be trusted to expose to a browser client. That remains open; closing it would mean either a service-role-backed edge function or keeping it as CLI/CI-only evidence, and is a separate decision.
+- The migration was committed and pushed before being applied to the linked project, per `.agents/skills/dpik-tugas-cloud-ops`'s commit-before-apply protocol.
 - Removed from the blocking-gaps table above. If the token is later found not to have been rotated, treat it as a live P0 again rather than assuming this note covers it indefinitely.
