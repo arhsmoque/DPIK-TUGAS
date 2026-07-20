@@ -51,11 +51,22 @@ Use this sequence for every schema change:
 6. Run the narrowest available local/static checks. If Docker is unavailable, state which shadow-database proof could not run.
 7. Commit and push the migration file before applying it to the shared project. Re-fetch and prove that the exact commit is on the remote branch.
 8. Re-run the linked migration comparison immediately before applying. Stop if another migration appeared.
-9. Apply only the committed migration through the CLI or approved Supabase MCP operation.
+9. Apply only the committed migration through the CLI or approved Supabase MCP operation. If applying through the Supabase MCP `apply_migration` tool, immediately do step 9a below — do not skip to step 10 first.
+   9a. **Known pitfall**: the Supabase MCP `apply_migration` tool stamps `supabase_migrations.schema_migrations.version` with its own call-time timestamp, ignoring the fourteen-digit version in your committed filename. This silently desyncs Git and remote history — the exact failure mode this skill exists to prevent — even though the tool call itself reports success. After every `apply_migration` call, run:
+   ```sql
+   select version, name from supabase_migrations.schema_migrations order by version desc limit 3;
+   ```
+   If the returned `version` does not match your committed migration's filename prefix exactly, reconcile it immediately with `execute_sql` (this is metadata correction, not a schema change, and has a direct precedent in this repo's history — see the 2026-07-18 eight-digit-to-fourteen-digit normalization in `journal.md`):
+   ```sql
+   update supabase_migrations.schema_migrations
+      set version = '<your-committed-fourteen-digit-version>'
+    where version = '<the-timestamp-apply_migration-actually-used>';
+   ```
+   Then re-run the `select` above (or `list_migrations`) to confirm the row now matches your file exactly before continuing to step 10. Never leave the mismatched version in place "because the function itself is correct" — the version row is what the next agent's drift check trusts.
 10. Run linked migration comparison, `db lint --linked --level error`, focused RLS/RPC probes, and repository checks.
 11. Commit evidence in `docs/evidence/` in the same work unit. Use a later forward repair if post-apply validation finds a defect.
 
-Never run `db reset --linked`, destructive repair, history rewriting, or unreviewed `drop`/`truncate` against the shared project. Use `migration repair` only with explicit operator authority and evidence proving whether the source file or remote history is wrong.
+Never run `db reset --linked`, destructive repair, history rewriting, or unreviewed `drop`/`truncate` against the shared project. Use `migration repair` only with explicit operator authority and evidence proving whether the source file or remote history is wrong. The version-metadata correction in step 9a is the one narrow exception this skill endorses without additional operator sign-off, because it only realigns a version label to match a file already reviewed and committed — it changes no schema, data, or grants.
 
 If a remote migration exists without a Git file, stop all new DDL. Recover the exact applied SQL from the applying agent or an authoritative database record, commit it under the remote version, compare live objects, and document any unverifiable difference. Never reverse-engineer an approximation and label it exact.
 
@@ -120,6 +131,7 @@ For every mutation, report:
 
 - fetched base commit and pushed commit;
 - migration version and whether it was committed before application;
+- if applied via the Supabase MCP `apply_migration` tool, whether a version mismatch (step 9a) was found and corrected;
 - linked project ref and migration-history result;
 - validation executed and unavailable checks;
 - secret names used, never values;
