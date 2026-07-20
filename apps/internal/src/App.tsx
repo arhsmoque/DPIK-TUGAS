@@ -8,10 +8,18 @@ import { ReceiptEvidencePanel } from "./ReceiptEvidencePanel";
 import { ClaimsPanel } from "./ClaimsPanel";
 import { AdminPanel } from "./AdminPanel";
 import { GovernanceGatesPanel, type GateRow } from "./GovernanceGatesPanel";
+import { OperatorHealthPanel } from "./OperatorHealthPanel";
 import { callRpc } from "./rpc";
 
 type NavTab =
-  "myWork" | "submissions" | "dispatch" | "receiptEvidence" | "claims" | "governance" | "admin";
+  | "myWork"
+  | "submissions"
+  | "dispatch"
+  | "receiptEvidence"
+  | "claims"
+  | "governance"
+  | "admin"
+  | "operatorHealth";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
@@ -275,7 +283,8 @@ export function App(): JSX.Element {
               ["receiptEvidence", "Receipt Evidence"],
               ["claims", "Claims"],
               ["governance", "Governance"],
-              ["admin", "Admin"]
+              ["admin", "Admin"],
+              ["operatorHealth", "Operator Health"]
             ] as [NavTab, string][]
           ).map(([tab, label]) => (
             <span
@@ -492,6 +501,9 @@ export function App(): JSX.Element {
             onError={setError}
             onNotice={setNotice}
           />
+        )}
+        {supabase && activeTab === "operatorHealth" && (
+          <OperatorHealthPanel supabase={supabase} onError={setError} />
         )}
       </main>
     </div>
