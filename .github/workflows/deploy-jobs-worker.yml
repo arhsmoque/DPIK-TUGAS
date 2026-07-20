@@ -1,0 +1,55 @@
+name: Deploy jobs Worker to Cloudflare Workers
+
+# Independent deploy unit (outbox publisher). Triggers only on changes under apps/jobs/**, never
+# blocked by or blocking the Pages deploy (deploy.yml) or the Supabase migration workflow
+# (supabase-migrate.yml). Dormant (fails fast, clearly) until CLOUDFLARE_API_TOKEN and
+# CLOUDFLARE_ACCOUNT_ID exist as repository secrets.
+#
+# Runtime secrets the Worker itself reads (SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, and optionally
+# RESEND_API_KEY / NOTIFY_FROM_ADDRESS) are bound once via `wrangler secret put`, not passed
+# through this workflow -- see .agents/skills/arh-cloudflare-wrangler-deploy
+# references/required-secrets.md.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/jobs/**"
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-jobs-worker
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check Cloudflare credentials are configured
+        run: |
+          if [ -z "${{ secrets.CLOUDFLARE_API_TOKEN }}" ] || [ -z "${{ secrets.CLOUDFLARE_ACCOUNT_ID }}" ]; then
+            echo "::error::CLOUDFLARE_API_TOKEN and/or CLOUDFLARE_ACCOUNT_ID repository secrets are not set. Add them (Settings > Secrets and variables > Actions) to enable deployment."
+            exit 1
+          fi
+
+      - name: Deploy Worker
+        run: npx wrangler deploy --config apps/jobs/wrangler.toml
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
