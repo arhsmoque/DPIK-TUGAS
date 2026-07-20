@@ -1,0 +1,22 @@
+# Cloudflare Worker config for the outbox publisher (apps/jobs).
+# Independent of the Pages deploy at repo-root wrangler.toml -- this Worker deploys and scales on
+# its own schedule, unaffected by apps/internal's build or deploy state.
+
+name = "dpiktugas-outbox-publisher"
+main = "src/worker.mjs"
+compatibility_date = "2026-05-23"
+compatibility_flags = ["nodejs_compat"]
+
+# Runs every 5 minutes. Adjust once real notification volume/latency requirements are known --
+# see apps/jobs/README.md for the retry/dead-letter behavior this cadence interacts with.
+[triggers]
+crons = ["*/5 * * * *"]
+
+# Runtime secrets (SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, and optionally RESEND_API_KEY /
+# NOTIFY_FROM_ADDRESS) are NOT set here. Bind them once via:
+#   npx wrangler secret put SUPABASE_URL --config apps/jobs/wrangler.toml
+#   npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY --config apps/jobs/wrangler.toml
+# See .agents/skills/arh-cloudflare-wrangler-deploy references/required-secrets.md.
+# Non-secret config:
+[vars]
+APP_BASE_URL = "https://dpiktugas.pages.dev"

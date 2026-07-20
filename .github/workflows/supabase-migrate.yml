@@ -1,0 +1,48 @@
+name: Apply Supabase migrations
+
+# Independent of both Cloudflare deploy workflows (deploy.yml, deploy-jobs-worker.yml). Triggers
+# only on changes under supabase/migrations/**. Uses the SUPABASE_ACCESS_TOKEN and
+# SUPABASE_PROJECT_REF repository secrets that already exist for this repo -- this workflow is the
+# piece that was missing to actually use them from CI instead of a local `supabase link` session.
+# See .agents/skills/arh-cloudflare-wrangler-deploy references/supabase-ci-migration.md.
+#
+# Migration review still happens in the PR that adds the migration file; this only removes the
+# local-execution dependency for applying an already-reviewed, already-merged migration.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "supabase/migrations/**"
+  workflow_dispatch:
+
+concurrency:
+  group: supabase-migrate
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check Supabase credentials are configured
+        run: |
+          if [ -z "${{ secrets.SUPABASE_ACCESS_TOKEN }}" ] || [ -z "${{ secrets.SUPABASE_PROJECT_REF }}" ]; then
+            echo "::error::SUPABASE_ACCESS_TOKEN and/or SUPABASE_PROJECT_REF repository secrets are not set. Add them (Settings > Secrets and variables > Actions) to enable this workflow."
+            exit 1
+          fi
+
+      - name: Link project (non-interactive, CI-only)
+        run: npx supabase@2.109.1 link --project-ref "${{ secrets.SUPABASE_PROJECT_REF }}"
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Push migrations
+        run: npx supabase@2.109.1 db push --linked
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}

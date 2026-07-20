@@ -18,8 +18,8 @@ Stage: WP-130 — reference-slice qualification is the next safe action.
 Runtime: Non-production startup reference slice is executable locally against the shared Supabase development project.
 Approval: Operational approval is unsigned; pilot and production remain blocked.
 Next safe action: Prove authenticated two-user behavior, negative RLS cases, concurrency, idempotency, recovery, and browser smoke before expanding workflow.
-Owned modules: identity-access, project-context, work-thread
-Latest migration: 20260718011000_fix_assign_work_parameter.sql
+Owned modules: claim, deliverable, dispatch, identity-access, project-context, receipt-evidence, submission, work-thread
+Latest migration: 20260719006000_administration.sql
 ```
 
 Do not expand business screens or schema beyond the startup reference slice before WP-130 security, recovery, idempotency, and browser gates pass.
@@ -46,6 +46,24 @@ npm test                    -- vitest run
 npm run test:architecture    -- module-boundary gate
 npm run build                 -- typecheck + vite build (apps/internal)
 ```
+
+## Deployment
+
+Cloudflare Pages (`apps/internal`) and the `apps/jobs` outbox-publisher Worker deploy independently
+from GitHub Actions on push to `main`, path-filtered so one unit's change never triggers another's
+deploy. Supabase migrations under `supabase/migrations/**` apply from CI the same way. All three
+authenticate only with GitHub Actions repository secrets — never a local `wrangler login` or
+`supabase link` session. See `.agents/skills/arh-cloudflare-wrangler-deploy/SKILL.md` before adding
+a new deployable unit, converting a script into a scheduled Worker, or diagnosing a dormant/failing
+deploy workflow — it also has `assets/verify-deploy-unit.mjs` (lint + typecheck + architecture +
+test + scoped format-check + wrangler dry-run in one command) and
+`references/known-pitfalls.md` (real CI failures already hit and fixed once, so they don't need
+re-discovering).
+
+Before auditing or substantially changing TS/JS structure, see
+`.agents/skills/repo-codebase-inspector/SKILL.md` (`npm run audit:tsjs`) — covers architecture
+boundaries, undeclared dependencies, hardcoded paths, and missing quality gates; complements, does
+not replace, `npm run test:architecture`.
 
 ## Repository shape
 

@@ -1,0 +1,6 @@
+[project]
+name = "repo-codebase-inspector"
+version = "0.1.0"
+description = "Self-contained TS/JS architecture, portability, and dependency-hygiene auditor. Standard-library only, no dependencies."
+requires-python = ">=3.10"
+dependencies = []
