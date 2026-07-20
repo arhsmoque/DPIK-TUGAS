@@ -1,0 +1,11 @@
+# Cloudflare Pages project config, ported from arhsmoque/legacy-DPIK-TUGAS-App
+# (app/wrangler.toml). Same project name deliberately reused: this repo's
+# build is intended to replace the legacy deployment at the same live URL
+# (https://main.dpiktugas.pages.dev), not stand up a separate one.
+#
+# Unlike legacy, this repo builds from the repo root (npm run build ->
+# apps/internal/vite.config.ts -> dist/internal), not from a working-directory
+# subfolder, so this file lives at root instead of alongside the app.
+name = "dpiktugas"
+compatibility_date = "2026-05-23"
+pages_build_output_dir = "dist/internal"
