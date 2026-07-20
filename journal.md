@@ -59,6 +59,7 @@ Resume at WP-130 reference-slice qualification. First rotate the exposed managem
 - Ran the reference-slice app in-session against the real development Supabase project (`mwvvtbgxnruxgjbffifd`) using the anon key fetched live via the Supabase MCP tools, and screenshotted the login screen (light/dark) to confirm it renders and is wired to the real backend, not a mock.
 - While inspecting the project for this, found a live, previously-undocumented finding: `public.projects` (legacy) has Row Level Security disabled, exposing its rows to the anon key. Recorded in `gaps-findings.md` for an explicit operator decision on remediation; not auto-fixed.
 - Confirmed only two fixture identities exist with Project membership: `rahman@dpik.com.my` and `smoque@gmail.com`. No hosted/browsable URL exists yet — this session has no Cloudflare access, so a real in-house-testable deployment needs either operator-side Cloudflare Pages setup or a Cloudflare API token handed to a cloud agent.
+
 ## 2026-07-20 — Repo auditor, and independent Cloudflare/Supabase CI deploys
 
 - Added `.agents/skills/repo-codebase-inspector` (self-contained, `uv run`, no local setup) — TS/JS
