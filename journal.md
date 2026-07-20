@@ -52,3 +52,36 @@ Resume at WP-130 reference-slice qualification. First rotate the exposed managem
 - `scripts/run-vite-with-arh-env.mjs` now falls back to `process.env.VITE_SUPABASE_URL`/`VITE_SUPABASE_ANON_KEY` when `ARH_VAULT` is unset, so a cloud session with those two repository secrets available as env vars can run `npm run build`/`npm run dev` without a local vault file.
 - Verified: typecheck, lint, and all 56 tests pass; `npm run build` verified to fail with a clear message when neither credential source is set, and to succeed end-to-end using only the two `VITE_SUPABASE_*` env vars.
 - Evidence: `docs/evidence/2026-07-18-vite-env-fallback.md`.
+
+## 2026-07-20 — Repo auditor, and independent Cloudflare/Supabase CI deploys
+
+- Added `.agents/skills/repo-codebase-inspector` (self-contained, `uv run`, no local setup) — TS/JS
+  architecture, dependency, portability, and quality-gate audit. Run via `npm run audit:tsjs`.
+  Complements `npm run test:architecture`; does not replace it.
+- Closed the "still needs a local machine" gap this repo's Cloudflare deploy had: `deploy.yml`
+  (Pages) was correct but dormant — `CLOUDFLARE_API_TOKEN`/`CLOUDFLARE_ACCOUNT_ID` were never set as
+  repository secrets. Operator added both via `gh secret set`; Pages deploy is now live and green.
+- Wired `apps/jobs`'s outbox-publisher as a Cloudflare Worker (`apps/jobs/wrangler.toml`,
+  `apps/jobs/src/worker.mjs`) with a 5-minute Cron Trigger, replacing the manual `--watch` polling
+  loop. `processBatch` itself is unchanged and stays covered by `notify.test.mjs`; `worker.mjs` is a
+  thin env-binding adapter only. Runtime secrets (`SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`) still
+  need a one-time `wrangler secret put` bind before the Worker's scheduled runs will do anything
+  beyond the console-notifier no-op.
+- Added `.github/workflows/supabase-migrate.yml`: applies `supabase/migrations/**` from CI using
+  the `SUPABASE_ACCESS_TOKEN`/`SUPABASE_PROJECT_REF` secrets that had existed since 2026-07-18 but
+  were never consumed by any workflow — this was the actual remaining local-machine dependency for
+  the merge-to-main migration path, not Cloudflare auth.
+- Each unit (Pages, jobs Worker, Supabase migrate) is an independent, path-filtered GitHub Actions
+  workflow with its own fail-fast secrets check; none blocks or is blocked by another.
+- Authored `.agents/skills/arh-cloudflare-wrangler-deploy` (also canonical in ARH at
+  `_arh-agent-domain/agent-skills/arh-cloudflare-wrangler-deploy.source`) so the pattern is reusable
+  by any repo/agent, not DPIK-TUGAS-specific. `references/known-pitfalls.md` and
+  `assets/verify-deploy-unit.mjs` exist because the first real push cycle hit three CI failures one
+  at a time (a Workers-only `Response` global failing `no-undef`, `prettier --check` flagging
+  `wrangler.toml` with no parser, a scoped-vs-repo-wide format-check distinction) — each is now
+  caught in one local run instead of costing a push-and-wait round trip.
+- Verified: `wrangler deploy --dry-run` clean, `test:architecture` and the full `apps/jobs` suite
+  pass unchanged, and both the Pages and jobs-Worker GitHub Actions runs are green on `main`
+  (`7d570f8`, `c9436ee`).
+- Not yet done: Worker runtime secrets are unbound (see above); no hosted proof the Worker's
+  scheduled run actually processes a real outbox message end-to-end.
