@@ -116,15 +116,20 @@ cost a full push-and-wait round trip to discover the hard way. Then run
 pushing:
 
 ```bash
-node <path-to-this-skill>/assets/verify-deploy-unit.mjs \
-  --wrangler-config apps/<unit>/wrangler.toml \
-  --check-path apps/<unit>/src/worker.mjs --check-path apps/<unit>/wrangler.toml
+node <path-to-this-skill>/assets/verify-deploy-unit.mjs --from-git \
+  --wrangler-config apps/<unit>/wrangler.toml
 ```
 
+`--from-git` derives the format-check file list from everything staged, unstaged, and untracked in
+the working tree -- use it by default, not a hand-enumerated `--check-path` list, so a file outside
+the unit you're focused on but still part of the same push can't slip through unverified (see
+known-pitfalls.md #6, a real recorded failure from exactly that gap). Pass explicit `--check-path`
+only when you deliberately want a narrower check than the full pending diff.
+
 It runs the repo's own `lint`, `typecheck`, `test:architecture`, and `test` scripts (skipping any
-that don't exist), a `prettier --check` scoped only to the paths you pass (never a blind repo-wide
-check -- see known-pitfalls.md #3), and a `wrangler deploy --dry-run`, then reports every result
-together. Fixing four failures found in one local run is faster than fixing one failure per push.
+that don't exist), a `prettier --check` scoped only to the derived/given paths (never a blind
+repo-wide check -- see known-pitfalls.md #3), and a `wrangler deploy --dry-run`, then reports every
+result together. Fixing several failures found in one local run is faster than fixing one per push.
 
 ## 7. Verify without a local wrangler login
 

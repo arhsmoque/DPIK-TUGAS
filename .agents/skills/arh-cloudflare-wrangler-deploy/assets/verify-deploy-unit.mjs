@@ -5,26 +5,54 @@
 // Node stdlib only, no dependencies. Works from any working directory inside the repo.
 //
 // Usage:
+//   node verify-deploy-unit.mjs --from-git --wrangler-config apps/jobs/wrangler.toml
+//
+// or, to name files explicitly instead of deriving them from git:
 //   node verify-deploy-unit.mjs --wrangler-config apps/jobs/wrangler.toml \
 //     --check-path apps/jobs/src/worker.mjs --check-path apps/jobs/wrangler.toml
 //
 // --wrangler-config is required for a Worker unit. Omit it (or pass --skip-dry-run) for a Pages
 // unit that has no per-unit wrangler.toml of its own.
-// --check-path may repeat; pass every new/changed file so the format check stays scoped to your
-// actual diff instead of the whole repo (see known-pitfalls.md #3 -- a Windows checkout can make
-// prettier --check . report unrelated pre-existing drift as if it were yours).
+//
+// --from-git is the recommended mode: it derives the format-check file list from
+// `git diff --cached --name-only` + unstaged changes + untracked files, so it can't miss a file
+// that's part of your push but not part of the deploy unit you're focused on -- a real recorded
+// failure (see known-pitfalls.md #6): a Worker's own files were verified and passed, but two
+// unrelated skill-doc files riding in the same commit were never checked at all and broke CI.
+// --check-path may repeat and is unioned with --from-git if both are given; pass explicit paths
+// when you want to verify a subset (e.g. only the unit you're actively working on) rather than
+// everything currently changed in the working tree.
 
 import { existsSync, readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 
 function parseArgs(argv) {
-  const args = { wranglerConfig: null, checkPaths: [], skipDryRun: false };
+  const args = { wranglerConfig: null, checkPaths: [], skipDryRun: false, fromGit: false };
   for (let i = 0; i < argv.length; i += 1) {
     if (argv[i] === "--wrangler-config") args.wranglerConfig = argv[++i];
     else if (argv[i] === "--check-path") args.checkPaths.push(argv[++i]);
     else if (argv[i] === "--skip-dry-run") args.skipDryRun = true;
+    else if (argv[i] === "--from-git") args.fromGit = true;
   }
   return args;
+}
+
+function changedFilesFromGit() {
+  const staged = spawnSync("git", ["diff", "--cached", "--name-only", "--diff-filter=ACMR"], {
+    encoding: "utf8"
+  });
+  const unstaged = spawnSync("git", ["diff", "--name-only", "--diff-filter=ACMR"], {
+    encoding: "utf8"
+  });
+  const untracked = spawnSync("git", ["ls-files", "--others", "--exclude-standard"], {
+    encoding: "utf8"
+  });
+  const all = [staged, unstaged, untracked]
+    .flatMap((result) => (result.stdout || "").split("\n"))
+    .map((line) => line.trim())
+    .filter(Boolean);
+  const unique = [...new Set(all)];
+  return unique.filter((path) => existsSync(path));
 }
 
 function run(label, command, args, options = {}) {
@@ -80,6 +108,17 @@ function main() {
   const args = parseArgs(process.argv.slice(2));
   const results = [];
 
+  if (args.fromGit) {
+    const derived = changedFilesFromGit();
+    args.checkPaths = [...new Set([...args.checkPaths, ...derived])];
+    results.push(
+      skip(
+        "--from-git file discovery",
+        `found ${derived.length} changed/untracked file(s): ${derived.join(", ") || "(none)"}`
+      )
+    );
+  }
+
   for (const script of ["lint", "typecheck", "test:architecture", "test"]) {
     if (hasScript(script)) {
       results.push(run(`npm run ${script}`, "npm", ["run", script]));
@@ -111,7 +150,9 @@ function main() {
     results.push(
       skip(
         "prettier --check",
-        "no --check-path given; skipped a repo-wide check to avoid false positives from local line-ending drift (see known-pitfalls.md #3). Pass --check-path explicitly."
+        args.fromGit
+          ? "--from-git found no staged/unstaged/untracked files -- nothing to check."
+          : "no --check-path or --from-git given; skipped a repo-wide check to avoid false positives from local line-ending drift (see known-pitfalls.md #3)."
       )
     );
   }

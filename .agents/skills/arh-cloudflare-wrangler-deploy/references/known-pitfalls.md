@@ -68,7 +68,20 @@ formatting problem. `assets/verify-deploy-unit.mjs` already filters `--check-pat
 extensions prettier supports and reports the rest as skipped; if calling `prettier --check`
 directly, only pass file types prettier actually formats.
 
-## 6. Sequence: don't push once and debug forever in CI
+## 6. Verifying only the deploy unit's own files misses everything else in the push
+
+A real failure: a Worker's `wrangler.toml` and entry file were verified with
+`--check-path apps/jobs/src/worker.mjs --check-path apps/jobs/wrangler.toml`, passed, and were
+pushed together with two unrelated skill-documentation files added in the same commit -- which were
+never passed to `--check-path` at all, and broke CI on `npm run format`. Scoping verification to
+"the thing I'm actively working on" silently excludes anything else riding along in the same push.
+
+**Fix:** use `--from-git` instead of manually enumerating `--check-path` -- it derives the file list
+from `git diff --cached --name-only` (staged), unstaged changes, and untracked files combined, so it
+verifies everything about to be committed/pushed, not just the deploy unit. Reserve explicit
+`--check-path` for when you deliberately want a narrower check than the full working tree diff.
+
+## 7. Sequence: don't push once and debug forever in CI
 
 Each round-trip through GitHub Actions costs several minutes and burns the operator's patience.
 Run [assets/verify-deploy-unit.mjs](../assets/verify-deploy-unit.mjs) locally first -- it bundles
