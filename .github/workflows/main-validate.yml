@@ -1,0 +1,66 @@
+name: Validate main against linked Supabase project
+
+# Deliberately push-only (branches: [main]), never pull_request -- mapping Supabase secrets into a
+# pull_request-triggered workflow would expose them to fork-originated PRs (see AGENTS.md and
+# journal.md 2026-07-18). ci.yml stays pull_request-safe and unchanged; this workflow only runs
+# for trusted push-to-main events and closes the P1 gap in gaps-findings.md: "GitHub CI does not
+# consume Supabase secrets or validate cloud startup."
+#
+# Independent of deploy.yml, deploy-jobs-worker.yml, and supabase-migrate.yml -- none of those
+# block or are blocked by this one.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: main-validate
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (exercises the real VITE_SUPABASE_* wiring)
+        run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+
+      - name: Check Supabase credentials are configured
+        run: |
+          if [ -z "${{ secrets.SUPABASE_ACCESS_TOKEN }}" ] || [ -z "${{ secrets.SUPABASE_PROJECT_REF }}" ]; then
+            echo "::error::SUPABASE_ACCESS_TOKEN and/or SUPABASE_PROJECT_REF repository secrets are not set. Add them (Settings > Secrets and variables > Actions) to enable this workflow."
+            exit 1
+          fi
+
+      - name: Link project (non-interactive, CI-only)
+        run: npx supabase@2.109.1 link --project-ref "${{ secrets.SUPABASE_PROJECT_REF }}"
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Migration history check (linked vs. tracked files)
+        run: npx supabase@2.109.1 migration list --linked
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Linked database lint
+        run: npx supabase@2.109.1 db lint --linked --level error
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
