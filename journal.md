@@ -53,6 +53,13 @@ Resume at WP-130 reference-slice qualification. First rotate the exposed managem
 - Verified: typecheck, lint, and all 56 tests pass; `npm run build` verified to fail with a clear message when neither credential source is set, and to succeed end-to-end using only the two `VITE_SUPABASE_*` env vars.
 - Evidence: `docs/evidence/2026-07-18-vite-env-fallback.md`.
 
+## 2026-07-19 — Operator visibility push
+
+- Operator flagged that agents had been withholding visibility behind unresolved gates instead of surfacing runnable progress. Directive: close the exposed-token gap by authority call (see `gaps-findings.md`), and get the actual frontend in front of the operator instead of only reporting status prose.
+- Ran the reference-slice app in-session against the real development Supabase project (`mwvvtbgxnruxgjbffifd`) using the anon key fetched live via the Supabase MCP tools, and screenshotted the login screen (light/dark) to confirm it renders and is wired to the real backend, not a mock.
+- While inspecting the project for this, found a live, previously-undocumented finding: `public.projects` (legacy) has Row Level Security disabled, exposing its rows to the anon key. Recorded in `gaps-findings.md` for an explicit operator decision on remediation; not auto-fixed.
+- Confirmed only two fixture identities exist with Project membership: `rahman@dpik.com.my` and `smoque@gmail.com`. No hosted/browsable URL exists yet — this session has no Cloudflare access, so a real in-house-testable deployment needs either operator-side Cloudflare Pages setup or a Cloudflare API token handed to a cloud agent.
+
 ## 2026-07-20 — Repo auditor, and independent Cloudflare/Supabase CI deploys
 
 - Added `.agents/skills/repo-codebase-inspector` (self-contained, `uv run`, no local setup) — TS/JS
