@@ -18,8 +18,8 @@ Stage: WP-130 — reference-slice qualification is the next safe action.
 Runtime: Non-production startup reference slice is executable locally against the shared Supabase development project.
 Approval: Operational approval is unsigned; pilot and production remain blocked.
 Next safe action: Prove authenticated two-user behavior, negative RLS cases, concurrency, idempotency, recovery, and browser smoke before expanding workflow.
-Owned modules: deliverable, identity-access, project-context, work-thread
-Latest migration: 20260719001000_deliverable.sql
+Owned modules: claim, deliverable, dispatch, identity-access, project-context, receipt-evidence, submission, work-thread
+Latest migration: 20260719006000_administration.sql
 ```
 
 Do not expand business screens or schema beyond the startup reference slice before WP-130 security, recovery, idempotency, and browser gates pass.
