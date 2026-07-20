@@ -35,7 +35,9 @@ async function runOncePass(env) {
   const client = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
   const notifier = selectNotifier();
   const summary = await processBatch(client, notifier, appBaseUrl);
-  console.log(`[outbox-publisher] notifier=${notifier.kind} appBaseUrl=${appBaseUrl} ${JSON.stringify(summary)}`);
+  console.log(
+    `[outbox-publisher] notifier=${notifier.kind} appBaseUrl=${appBaseUrl} ${JSON.stringify(summary)}`
+  );
   return summary;
 }
 
