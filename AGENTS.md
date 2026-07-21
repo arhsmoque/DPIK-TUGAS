@@ -19,7 +19,7 @@ Runtime: Non-production startup reference slice is executable locally against th
 Approval: Operational approval is unsigned; pilot and production remain blocked.
 Next safe action: Prove authenticated two-user behavior, negative RLS cases, concurrency, idempotency, recovery, and browser smoke before expanding workflow.
 Owned modules: claim, deliverable, dispatch, governance-gate, identity-access, project-context, receipt-evidence, submission, work-thread
-Latest migration: 20260720000000_governance_gate.sql
+Latest migration: 20260720010000_operator_health.sql
 ```
 
 Do not expand business screens or schema beyond the startup reference slice before WP-130 security, recovery, idempotency, and browser gates pass.

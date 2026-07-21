@@ -23,7 +23,7 @@ Internal work assignment and accountability system for DPI Konsult Sdn Bhd. This
 - **Approval:** Operational approval is unsigned; pilot and production remain blocked.
 - **Next safe action:** Prove authenticated two-user behavior, negative RLS cases, concurrency, idempotency, recovery, and browser smoke before expanding workflow.
 - **Owned modules:** `claim`, `deliverable`, `dispatch`, `governance-gate`, `identity-access`, `project-context`, `receipt-evidence`, `submission`, `work-thread`
-- **Tracked migrations:** 12; latest `20260720000000_governance_gate.sql`
+- **Tracked migrations:** 13; latest `20260720010000_operator_health.sql`
 
 ## Common commands
 
