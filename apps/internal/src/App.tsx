@@ -26,6 +26,13 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undef
 const configured = Boolean(supabaseUrl && supabaseAnonKey);
 const supabase = configured ? createClient(supabaseUrl!, supabaseAnonKey!) : null;
 
+// Pre-commissioning convenience gate: email-only entry, no magic-link round trip.
+// Set VITE_TUGAS_GATE_MODE=commissioning (alongside removing/rotating the passphrase)
+// to switch back to the strict magic-link flow -- that flip *is* "commissioning begin".
+const gateMode = (import.meta.env.VITE_TUGAS_GATE_MODE ?? "precommissioning").trim();
+const isPrecommissioning = gateMode !== "commissioning";
+const openPassphrase = import.meta.env.VITE_TUGAS_OPEN_PASSPHRASE;
+
 interface StartupProject {
   id: string;
   code: string;
@@ -163,6 +170,18 @@ export function App(): JSX.Element {
     else setNotice("Magic link sent. Check your email to continue.");
   }
 
+  async function enterPrecommissioning(event: FormEvent): Promise<void> {
+    event.preventDefault();
+    if (!supabase) return;
+    setError("");
+    if (!openPassphrase) {
+      setError("VITE_TUGAS_OPEN_PASSPHRASE is not set for this build.");
+      return;
+    }
+    const result = await supabase.auth.signInWithPassword({ email, password: openPassphrase });
+    if (result.error) setError(result.error.message);
+  }
+
   async function createWork(event: FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
     if (!supabase || !project) return;
@@ -248,19 +267,39 @@ export function App(): JSX.Element {
           <div className="mark">DPIK</div>
           <p className="eyebrow">DPI Konsult Sdn Bhd</p>
           <h1>TUGAS startup</h1>
-          <p>Sign in with an approved startup email. No password is stored by this application.</p>
-          <form onSubmit={(event) => void requestMagicLink(event)}>
-            <label>
-              Email
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </label>
-            <button type="submit">Send magic link</button>
-          </form>
+          {isPrecommissioning ? (
+            <>
+              <p>Pre-commissioning access. Enter your email to continue.</p>
+              <form onSubmit={(event) => void enterPrecommissioning(event)}>
+                <label>
+                  Email
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </label>
+                <button type="submit">Continue</button>
+              </form>
+            </>
+          ) : (
+            <>
+              <p>Sign in with an approved startup email. No password is stored by this application.</p>
+              <form onSubmit={(event) => void requestMagicLink(event)}>
+                <label>
+                  Email
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </label>
+                <button type="submit">Send magic link</button>
+              </form>
+            </>
+          )}
           {notice && <p className="notice">{notice}</p>}
           {error && <p className="error">{error}</p>}
         </section>
